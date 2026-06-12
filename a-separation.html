@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>A Separation - Final Cut</title>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk:wght@300;400;500&family=IBM+Plex+Mono:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+  :root {
+    --bg:#0a0908; --bg2:#100f0c; --bg3:#161410;
+    --accent:#7f96a8;
+    --accent-glow:rgba(127,150,168,0.12);
+    --amber:#e8a33d;
+    --text:#e9e4d8; --muted:#76705f;
+    --border:rgba(255,255,255,0.06);
+    --font-display:'Anton',sans-serif;
+    --font-body:'Space Grotesk',sans-serif;
+    --font-mono:'IBM Plex Mono',monospace;
+  }
+  html { scroll-behavior:smooth; }
+  body { background:var(--bg); color:var(--text); font-family:var(--font-body); font-weight:300; line-height:1.7; overflow-x:hidden; }
+  body::before, body::after {
+    content:''; position:fixed; top:0; bottom:0; width:22px; z-index:50; pointer-events:none;
+    background-image:radial-gradient(circle at center, rgba(255,255,255,0.07) 4px, transparent 5px);
+    background-size:22px 34px; background-repeat:repeat-y; background-position:center;
+  }
+  body::before { left:0; border-right:1px solid var(--border); }
+  body::after { right:0; border-left:1px solid var(--border); }
+  @media(max-width:700px){ body::before, body::after { display:none; } }
+
+  .progress-bar { position:fixed; top:0; left:0; height:2px; background:var(--accent); z-index:200; width:0%; transition:width 0.1s linear; }
+  nav { position:fixed; top:0; left:0; right:0; padding:1.1rem 2.5rem; display:flex; justify-content:space-between; align-items:center; z-index:100; background:linear-gradient(to bottom, rgba(10,9,8,0.92), transparent); }
+  .nav-back { font-family:var(--font-mono); letter-spacing:0.25em; font-size:0.66rem; text-transform:uppercase; color:var(--muted); text-decoration:none; transition:color 0.2s; }
+  .nav-back:hover { color:var(--accent); }
+  .nav-score { font-family:var(--font-display); font-size:1.1rem; color:var(--accent); opacity:0; transition:opacity 0.4s; }
+  .nav-score.visible { opacity:1; }
+
+  .hero { min-height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center; position:relative; overflow:hidden; padding:4rem 2rem; text-align:center; }
+  .hero-bg { position:absolute; inset:0; background:radial-gradient(ellipse 75% 55% at 50% 45%, var(--accent-glow) 0%, transparent 68%), var(--bg); z-index:0; }
+  .hero-content { position:relative; z-index:1; }
+  .cut-label { font-family:var(--font-mono); letter-spacing:0.4em; font-size:0.66rem; color:var(--accent); text-transform:uppercase; margin-bottom:1.8rem; opacity:0; animation:fadeUp 0.8s ease 0.2s forwards; }
+  .hero-title { font-family:var(--font-display); font-size:clamp(3rem,12vw,10rem); line-height:0.92; letter-spacing:0.01em; text-transform:uppercase; color:var(--text); opacity:0; animation:fadeUp 0.8s ease 0.4s forwards; max-width:1000px; }
+  .hero-director { font-family:var(--font-mono); font-style:italic; font-size:clamp(0.95rem,2.5vw,1.4rem); color:var(--accent); margin-top:1rem; opacity:0; animation:fadeUp 0.8s ease 0.6s forwards; }
+  .hero-meta { font-family:var(--font-mono); letter-spacing:0.3em; font-size:0.74rem; color:var(--muted); margin-top:1.5rem; text-transform:uppercase; opacity:0; animation:fadeUp 0.8s ease 0.8s forwards; }
+  .hero-rule { width:1px; height:70px; background:linear-gradient(to bottom, var(--accent), transparent); margin:3rem auto 0; opacity:0; animation:fadeUp 0.8s ease 1s forwards; }
+  .scroll-hint { font-family:var(--font-mono); font-size:0.62rem; letter-spacing:0.35em; color:var(--muted); text-transform:uppercase; margin-top:0.8rem; opacity:0; animation:fadeUp 0.8s ease 1.2s forwards; }
+
+  .verdict-bar { background:var(--accent); padding:1.1rem 2rem; text-align:center; font-size:0.92rem; color:rgba(0,0,0,0.85); font-weight:500; line-height:1.5; }
+
+  .score-section { background:var(--bg2); border-top:1px solid var(--border); border-bottom:1px solid var(--border); }
+  .score-inner { max-width:920px; margin:0 auto; padding:6rem 2rem; display:grid; grid-template-columns:1fr 1.5fr; gap:5rem; align-items:center; }
+  @media(max-width:640px){ .score-inner{grid-template-columns:1fr;gap:2.5rem;} }
+  .score-display { text-align:center; }
+  .score-number { font-family:var(--font-display); font-size:clamp(5rem,15vw,10rem); line-height:1; color:var(--text); }
+  .score-number span { color:var(--accent); }
+  .score-label { font-family:var(--font-mono); letter-spacing:0.35em; font-size:0.68rem; text-transform:uppercase; color:var(--muted); margin-top:0.4rem; }
+  .score-verdict { font-family:var(--font-mono); font-style:italic; font-size:1.15rem; line-height:1.6; margin-bottom:1.5rem; color:var(--text); }
+  .score-defense { font-size:0.88rem; color:var(--muted); line-height:1.85; }
+
+  .section { max-width:920px; margin:0 auto; padding:6rem 2rem; }
+  .section-label { font-family:var(--font-mono); letter-spacing:0.4em; font-size:0.64rem; color:var(--accent); text-transform:uppercase; margin-bottom:1.4rem; }
+  .section-title { font-family:var(--font-display); font-size:clamp(1.8rem,4.5vw,3.2rem); line-height:1.1; text-transform:uppercase; margin-bottom:2.5rem; }
+  .section-title em { font-style:normal; color:var(--accent); }
+  .body-text p { margin-bottom:1.4rem; font-size:0.95rem; color:var(--text); }
+  .body-text p:last-child { margin-bottom:0; }
+
+  .craft-section { background:var(--bg2); border-top:1px solid var(--border); border-bottom:1px solid var(--border); }
+  .craft-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:1.5px; background:var(--border); border:1px solid var(--border); }
+  .craft-card { background:var(--bg2); padding:2.2rem 1.8rem; position:relative; overflow:hidden; transition:background 0.2s; }
+  .craft-card::before { content:''; position:absolute; top:0; left:0; width:3px; height:0; background:var(--accent); transition:height 0.3s; }
+  .craft-card:hover::before { height:100%; }
+  .craft-card:hover { background:var(--bg3); }
+  .craft-head { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:0.9rem; }
+  .craft-name { font-family:var(--font-mono); letter-spacing:0.25em; font-size:0.66rem; text-transform:uppercase; color:var(--text); }
+  .craft-score { font-family:var(--font-display); font-size:1.5rem; color:var(--accent); }
+  .craft-meter { height:3px; background:rgba(255,255,255,0.07); margin-bottom:1rem; }
+  .craft-meter span { display:block; height:100%; background:var(--accent); }
+  .craft-note { font-size:0.82rem; color:var(--muted); line-height:1.75; }
+
+  .quote-section { padding:7rem 2rem; text-align:center; position:relative; overflow:hidden; }
+  .quote-bg { position:absolute; inset:0; background:radial-gradient(ellipse 55% 55% at 50% 50%, var(--accent-glow) 0%, transparent 70%); opacity:0.5; }
+  .quote-text { font-family:var(--font-mono); font-style:italic; font-size:clamp(1.2rem,3vw,2rem); line-height:1.5; max-width:680px; margin:0 auto; position:relative; z-index:1; }
+  .quote-attr { font-family:var(--font-mono); letter-spacing:0.3em; font-size:0.62rem; text-transform:uppercase; color:var(--muted); margin-top:1.5rem; position:relative; z-index:1; }
+
+  .scene { border-left:3px solid var(--accent); background:var(--bg2); padding:2rem 2.2rem; margin-bottom:1.5rem; }
+  .scene-tc { font-family:var(--font-mono); font-size:0.64rem; letter-spacing:0.25em; color:var(--accent); text-transform:uppercase; margin-bottom:0.5rem; }
+  .scene-title { font-family:var(--font-display); font-size:1.3rem; text-transform:uppercase; margin-bottom:0.8rem; }
+  .scene-text { font-size:0.88rem; color:var(--muted); line-height:1.85; }
+
+  .rewatch-section { background:var(--bg2); border-top:1px solid var(--border); text-align:center; padding:6rem 2rem; }
+  .rewatch-stamp { display:inline-block; font-family:var(--font-display); font-size:clamp(1.6rem,4vw,2.8rem); text-transform:uppercase; color:var(--accent); border:3px solid var(--accent); padding:0.6rem 2.2rem; transform:rotate(-2deg); letter-spacing:0.04em; }
+  .rewatch-note { font-size:0.9rem; color:var(--muted); max-width:560px; margin:2rem auto 0; line-height:1.85; }
+
+  footer { padding:4rem 2rem; text-align:center; border-top:1px solid var(--border); }
+  .footer-back { font-family:var(--font-mono); letter-spacing:0.3em; font-size:0.66rem; text-transform:uppercase; color:var(--muted); text-decoration:none; transition:color 0.2s; }
+  .footer-back:hover { color:var(--accent); }
+
+  @keyframes fadeUp { from{opacity:0;transform:translateY(28px)} to{opacity:1;transform:translateY(0)} }
+  .reveal { opacity:0; transform:translateY(38px); transition:opacity 0.7s ease, transform 0.7s ease; }
+  .reveal.visible { opacity:1; transform:translateY(0); }
+</style>
+</head>
+<body>
+<div class="progress-bar" id="progress"></div>
+
+<nav>
+  <a href="index.html" class="nav-back">← All Cuts</a>
+  <div class="nav-score" id="navScore">10</div>
+</nav>
+
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-content">
+    <div class="cut-label">Final Cut No. 8</div>
+    <h1 class="hero-title">A Separation</h1>
+    <div class="hero-director">dir. Asghar Farhadi</div>
+    <div class="hero-meta">2011 · Drama · 123 min</div>
+    <div class="hero-rule"></div>
+    <div class="scroll-hint">Roll film</div>
+  </div>
+</section>
+
+<div class="verdict-bar">Everyone is right, everyone is lying a little, and the wreckage is total anyway. The best screenplay of this century so far.</div>
+
+<section class="score-section">
+  <div class="score-inner">
+    <div class="score-display">
+      <div class="score-number">10<span>.0</span></div>
+      <div class="score-label">Out of ten</div>
+    </div>
+    <div>
+      <div class="score-verdict">A divorce drama built like a thriller, where the bomb is a half-truth and every character has one in their pocket.</div>
+      <div class="score-defense">The 10 rests on the screenplay doing something close to impossible: sustaining a two-hour moral argument where every position is defensible, every lie is understandable, and the audience switches sides a dozen times without being manipulated once. No villain, no score telling you how to feel, no exit. To dock it a point you'd have to find a scene where Farhadi cheats, where someone acts out of character to serve the plot. I've looked. There isn't one.</div>
+    </div>
+  </div>
+</section>
+
+<section class="craft-section">
+  <div class="section">
+    <div class="section-label reveal">The Bench</div>
+    <h2 class="section-title reveal">Craft <em>scorecard</em></h2>
+    <div class="craft-grid reveal">
+      <div class="craft-card">
+        <div class="craft-head"><span class="craft-name">Direction</span><span class="craft-score">9.8</span></div>
+        <div class="craft-meter"><span style="width:98%"></span></div>
+        <div class="craft-note">Farhadi shoots domestic life like a crime scene under investigation, handheld but never sloppy, always positioning you where you can see just slightly less than you need. The withholding is the direction.</div>
+      </div>
+      <div class="craft-card">
+        <div class="craft-head"><span class="craft-name">Cinematography</span><span class="craft-score">9.0</span></div>
+        <div class="craft-meter"><span style="width:90%"></span></div>
+        <div class="craft-note">Mahmoud Kalari frames nearly everything through doorways, stairwells, and the frosted glass of the apartment, a household already divided into territories before anyone files papers. Unshowy on purpose; the images testify, they don't perform.</div>
+      </div>
+      <div class="craft-card">
+        <div class="craft-head"><span class="craft-name">Acting</span><span class="craft-score">9.8</span></div>
+        <div class="craft-meter"><span style="width:98%"></span></div>
+        <div class="craft-note">Berlin gave the acting prizes to the entire ensemble, which was the only honest ruling. Peyman Moaadi's Nader is pride wearing reason's clothes, Leila Hatami's Simin is the film's tired conscience, and Sareh Bayat as Razieh carries faith, poverty, and panic in a single posture. The two daughters, watching everything, are devastating without a single big scene.</div>
+      </div>
+      <div class="craft-card">
+        <div class="craft-head"><span class="craft-name">Writing</span><span class="craft-score">10</span></div>
+        <div class="craft-meter"><span style="width:100%"></span></div>
+        <div class="craft-note">A perfect machine. Every revelation is planted in plain sight, every character's lie protects something human (a father, a fetus, a child's respect), and the central question of what happened on the stairs is answered completely while settling nothing. Screenwriting programs should just teach this and go home.</div>
+      </div>
+      <div class="craft-card">
+        <div class="craft-head"><span class="craft-name">Score &amp; Sound</span><span class="craft-score">8.8</span></div>
+        <div class="craft-meter"><span style="width:88%"></span></div>
+        <div class="craft-note">No score at all until the end credits, and the single piece that finally plays lands like a held breath released. The sound of the film is doors, traffic, and overlapping arguments, the acoustics of a life with no privacy.</div>
+      </div>
+      <div class="craft-card">
+        <div class="craft-head"><span class="craft-name">Editing</span><span class="craft-score">9.4</span></div>
+        <div class="craft-meter"><span style="width:94%"></span></div>
+        <div class="craft-note">Cut like a procedural: the film keeps arriving at scenes a few seconds after the crucial thing happened, making you reconstruct events exactly the way the characters and the court must. The 123 minutes feel like 90.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-label reveal">Themes</div>
+  <h2 class="section-title reveal">What it's <em>actually</em> about</h2>
+  <div class="body-text reveal">
+    <p>The title names the divorce, but the film is a map of every separation running through one city: husband from wife, secular middle class from religious working class, law from justice, what people did from what they can afford to admit. Nader and Razieh never fight about the stairs, not really. They fight from opposite sides of a class line, where one family's emergency is the other family's employer, and the courtroom is just the room where the lines become visible.</p>
+    <p>What elevates it is that the film refuses the cheap version of every conflict. Nader's lie is despicable and completely understandable; he tells it in front of his daughter, and the look she gives him is the film's real verdict. Razieh's faith isn't backwardness, it's the only structure holding her household up. Simin, who sets everything in motion by wanting to leave, is the person who is most right and gets blamed the most. The film's deepest observation is that decent people, under enough pressure, will each shave the truth a few percent, and a few percent each is enough to destroy everything communally.</p>
+    <p>And then the ending: Termeh, the daughter, asked to choose between her parents, and the camera walks out of the room before she answers. Every separation in the film funnels into one child's impossible choice, left permanently open. It's the most honest ending of the century because the question was never answerable, and Farhadi is the only director who didn't pretend otherwise.</p>
+  </div>
+</section>
+
+<section class="quote-section">
+  <div class="quote-bg"></div>
+  <div class="quote-text">"What is wrong is wrong, no matter who says it or where it's written."</div>
+  <div class="quote-attr">Termeh's lesson — A Separation</div>
+</section>
+
+<section class="section">
+  <div class="section-label reveal">Standout Scenes</div>
+  <h2 class="section-title reveal">The frames that <em>stay</em></h2>
+  <div class="reveal">
+    <div class="scene">
+      <div class="scene-tc">TC 00:01:00</div>
+      <div class="scene-title">The Opening Plea</div>
+      <div class="scene-text">Nader and Simin argue their divorce directly into the camera, which sits where the judge sits, making you the court for the next two hours. Simin: "He is a good, decent man." She's leaving him and that's her testimony. The whole film is in that contradiction, and it hasn't even started yet.</div>
+    </div>
+    <div class="scene">
+      <div class="scene-tc">TC 00:38:00</div>
+      <div class="scene-title">The Stairs</div>
+      <div class="scene-text">Nader comes home to find his Alzheimer's-stricken father tied to the bed, and shoves Razieh out the door. The film shows you the push and then cuts before the landing, and that missing half-second becomes the engine of everything after. You saw it happen and you still don't know what happened. That's the whole movie's method in one cut.</div>
+    </div>
+    <div class="scene">
+      <div class="scene-tc">TC 00:26:00</div>
+      <div class="scene-title">The Phone Call</div>
+      <div class="scene-text">Razieh, alone with the old man who has soiled himself, calls a religious hotline to ask whether cleaning him would be a sin. She's asking permission to be decent. It's the film's quietest scene and its sharpest: a woman negotiating between her faith, her poverty, and a stranger's dignity, with nobody watching and nothing to gain.</div>
+    </div>
+    <div class="scene">
+      <div class="scene-tc">TC 01:52:00</div>
+      <div class="scene-title">The Oath</div>
+      <div class="scene-text">The settlement is agreed, the money is on the table, and all Razieh has to do is swear on the Quran that Nader caused her miscarriage. She can't. Her husband's debts, her family's survival, all of it is sitting right there, and she cannot put her hand on the book. The film's only act of pure integrity comes from its poorest character, and it costs her everything.</div>
+    </div>
+  </div>
+</section>
+
+<section class="section" style="padding-top:0;">
+  <div class="section-label reveal">Writing &amp; Dialogue</div>
+  <h2 class="section-title reveal">On the <em>page</em></h2>
+  <div class="body-text reveal">
+    <p>Farhadi writes arguments the way they actually work: overlapping, interrupted, each person responding to the sentence before last. Nobody delivers a speech; everybody testifies, in kitchens, stairwells, and hearing rooms that are just a desk and plastic chairs. The masterstroke is how information moves: every secret is revealed to us and to a character at the same moment, so judgment and sympathy arrive together, already tangled. And the daughters function as the script's conscience: the adults lie in front of the children in exactly the dose they think children can't detect, and the children detect all of it.</p>
+  </div>
+</section>
+
+<section class="section" style="padding-top:0;">
+  <div class="section-label reveal">The Honest Take</div>
+  <h2 class="section-title reveal">No <em>notes</em> withheld</h2>
+  <div class="body-text reveal">
+    <p>I called it the best screenplay of the century when I recommended it, and having gone back through it scene by scene for this autopsy, I'll hold the line. There is no fat, no convenience, no moment where the film thumbs the scale. It also does something quietly radical for Western audiences: it presents Iranian middle-class life with such specificity that the exoticism evaporates in ten minutes and what's left is the most universal story imaginable, parents, pride, and the truth as a luxury not everyone can afford. If the film has a limit, it's that it offers no catharsis whatsoever. That's not a flaw. That's the integrity.</p>
+  </div>
+</section>
+
+<section class="rewatch-section">
+  <div class="section-label reveal">Rewatch Verdict</div>
+  <div class="reveal" style="margin-top:1.5rem;">
+    <span class="rewatch-stamp">Rewatch It</span>
+  </div>
+  <div class="rewatch-note reveal">The rewatch is a different experience: knowing every secret, you watch the exact moments each character decides to shave the truth, and the film turns from a mystery into a tragedy in slow motion.</div>
+</section>
+
+<footer>
+  <a href="index.html" class="footer-back">← Back to all cuts</a>
+</footer>
+
+<script>
+  window.addEventListener('scroll', () => {
+    const el = document.documentElement;
+    const total = el.scrollHeight - el.clientHeight;
+    document.getElementById('progress').style.width = (total > 0 ? el.scrollTop / total * 100 : 0) + '%';
+    document.getElementById('navScore').classList.toggle('visible', el.scrollTop > window.innerHeight * 0.8);
+  }, { passive:true });
+
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold:0.12 });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+  const meters = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const span = e.target.querySelector('span');
+        span.style.transition = 'width 0.9s ease';
+        requestAnimationFrame(() => { span.style.width = span.dataset.w; });
+      }
+    });
+  }, { threshold:0.5 });
+  document.querySelectorAll('.craft-meter').forEach(m => {
+    const span = m.querySelector('span');
+    span.dataset.w = span.style.width;
+    span.style.width = '0%';
+    meters.observe(m);
+  });
+</script>
+</body>
+</html>

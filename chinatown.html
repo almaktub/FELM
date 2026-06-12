@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chinatown - Final Cut</title>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk:wght@300;400;500&family=IBM+Plex+Mono:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+  :root {
+    --bg:#0a0908; --bg2:#100f0c; --bg3:#161410;
+    --accent:#c79456;
+    --accent-glow:rgba(199,148,86,0.12);
+    --amber:#e8a33d;
+    --text:#e9e4d8; --muted:#76705f;
+    --border:rgba(255,255,255,0.06);
+    --font-display:'Anton',sans-serif;
+    --font-body:'Space Grotesk',sans-serif;
+    --font-mono:'IBM Plex Mono',monospace;
+  }
+  html { scroll-behavior:smooth; }
+  body { background:var(--bg); color:var(--text); font-family:var(--font-body); font-weight:300; line-height:1.7; overflow-x:hidden; }
+  body::before, body::after {
+    content:''; position:fixed; top:0; bottom:0; width:22px; z-index:50; pointer-events:none;
+    background-image:radial-gradient(circle at center, rgba(255,255,255,0.07) 4px, transparent 5px);
+    background-size:22px 34px; background-repeat:repeat-y; background-position:center;
+  }
+  body::before { left:0; border-right:1px solid var(--border); }
+  body::after { right:0; border-left:1px solid var(--border); }
+  @media(max-width:700px){ body::before, body::after { display:none; } }
+
+  .progress-bar { position:fixed; top:0; left:0; height:2px; background:var(--accent); z-index:200; width:0%; transition:width 0.1s linear; }
+  nav { position:fixed; top:0; left:0; right:0; padding:1.1rem 2.5rem; display:flex; justify-content:space-between; align-items:center; z-index:100; background:linear-gradient(to bottom, rgba(10,9,8,0.92), transparent); }
+  .nav-back { font-family:var(--font-mono); letter-spacing:0.25em; font-size:0.66rem; text-transform:uppercase; color:var(--muted); text-decoration:none; transition:color 0.2s; }
+  .nav-back:hover { color:var(--accent); }
+  .nav-score { font-family:var(--font-display); font-size:1.1rem; color:var(--accent); opacity:0; transition:opacity 0.4s; }
+  .nav-score.visible { opacity:1; }
+
+  .hero { min-height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center; position:relative; overflow:hidden; padding:4rem 2rem; text-align:center; }
+  .hero-bg { position:absolute; inset:0; background:radial-gradient(ellipse 75% 55% at 50% 45%, var(--accent-glow) 0%, transparent 68%), var(--bg); z-index:0; }
+  .hero-content { position:relative; z-index:1; }
+  .cut-label { font-family:var(--font-mono); letter-spacing:0.4em; font-size:0.66rem; color:var(--accent); text-transform:uppercase; margin-bottom:1.8rem; opacity:0; animation:fadeUp 0.8s ease 0.2s forwards; }
+  .hero-title { font-family:var(--font-display); font-size:clamp(3.4rem,14vw,12rem); line-height:0.92; letter-spacing:0.01em; text-transform:uppercase; color:var(--text); opacity:0; animation:fadeUp 0.8s ease 0.4s forwards; max-width:1000px; }
+  .hero-director { font-family:var(--font-mono); font-style:italic; font-size:clamp(0.95rem,2.5vw,1.4rem); color:var(--accent); margin-top:1rem; opacity:0; animation:fadeUp 0.8s ease 0.6s forwards; }
+  .hero-meta { font-family:var(--font-mono); letter-spacing:0.3em; font-size:0.74rem; color:var(--muted); margin-top:1.5rem; text-transform:uppercase; opacity:0; animation:fadeUp 0.8s ease 0.8s forwards; }
+  .hero-rule { width:1px; height:70px; background:linear-gradient(to bottom, var(--accent), transparent); margin:3rem auto 0; opacity:0; animation:fadeUp 0.8s ease 1s forwards; }
+  .scroll-hint { font-family:var(--font-mono); font-size:0.62rem; letter-spacing:0.35em; color:var(--muted); text-transform:uppercase; margin-top:0.8rem; opacity:0; animation:fadeUp 0.8s ease 1.2s forwards; }
+
+  .verdict-bar { background:var(--accent); padding:1.1rem 2rem; text-align:center; font-size:0.92rem; color:rgba(0,0,0,0.85); font-weight:500; line-height:1.5; }
+
+  .score-section { background:var(--bg2); border-top:1px solid var(--border); border-bottom:1px solid var(--border); }
+  .score-inner { max-width:920px; margin:0 auto; padding:6rem 2rem; display:grid; grid-template-columns:1fr 1.5fr; gap:5rem; align-items:center; }
+  @media(max-width:640px){ .score-inner{grid-template-columns:1fr;gap:2.5rem;} }
+  .score-display { text-align:center; }
+  .score-number { font-family:var(--font-display); font-size:clamp(5rem,15vw,10rem); line-height:1; color:var(--text); }
+  .score-number span { color:var(--accent); }
+  .score-label { font-family:var(--font-mono); letter-spacing:0.35em; font-size:0.68rem; text-transform:uppercase; color:var(--muted); margin-top:0.4rem; }
+  .score-verdict { font-family:var(--font-mono); font-style:italic; font-size:1.15rem; line-height:1.6; margin-bottom:1.5rem; color:var(--text); }
+  .score-defense { font-size:0.88rem; color:var(--muted); line-height:1.85; }
+
+  .section { max-width:920px; margin:0 auto; padding:6rem 2rem; }
+  .section-label { font-family:var(--font-mono); letter-spacing:0.4em; font-size:0.64rem; color:var(--accent); text-transform:uppercase; margin-bottom:1.4rem; }
+  .section-title { font-family:var(--font-display); font-size:clamp(1.8rem,4.5vw,3.2rem); line-height:1.1; text-transform:uppercase; margin-bottom:2.5rem; }
+  .section-title em { font-style:normal; color:var(--accent); }
+  .body-text p { margin-bottom:1.4rem; font-size:0.95rem; color:var(--text); }
+  .body-text p:last-child { margin-bottom:0; }
+
+  .craft-section { background:var(--bg2); border-top:1px solid var(--border); border-bottom:1px solid var(--border); }
+  .craft-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:1.5px; background:var(--border); border:1px solid var(--border); }
+  .craft-card { background:var(--bg2); padding:2.2rem 1.8rem; position:relative; overflow:hidden; transition:background 0.2s; }
+  .craft-card::before { content:''; position:absolute; top:0; left:0; width:3px; height:0; background:var(--accent); transition:height 0.3s; }
+  .craft-card:hover::before { height:100%; }
+  .craft-card:hover { background:var(--bg3); }
+  .craft-head { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:0.9rem; }
+  .craft-name { font-family:var(--font-mono); letter-spacing:0.25em; font-size:0.66rem; text-transform:uppercase; color:var(--text); }
+  .craft-score { font-family:var(--font-display); font-size:1.5rem; color:var(--accent); }
+  .craft-meter { height:3px; background:rgba(255,255,255,0.07); margin-bottom:1rem; }
+  .craft-meter span { display:block; height:100%; background:var(--accent); }
+  .craft-note { font-size:0.82rem; color:var(--muted); line-height:1.75; }
+
+  .quote-section { padding:7rem 2rem; text-align:center; position:relative; overflow:hidden; }
+  .quote-bg { position:absolute; inset:0; background:radial-gradient(ellipse 55% 55% at 50% 50%, var(--accent-glow) 0%, transparent 70%); opacity:0.5; }
+  .quote-text { font-family:var(--font-mono); font-style:italic; font-size:clamp(1.2rem,3vw,2rem); line-height:1.5; max-width:680px; margin:0 auto; position:relative; z-index:1; }
+  .quote-attr { font-family:var(--font-mono); letter-spacing:0.3em; font-size:0.62rem; text-transform:uppercase; color:var(--muted); margin-top:1.5rem; position:relative; z-index:1; }
+
+  .scene { border-left:3px solid var(--accent); background:var(--bg2); padding:2rem 2.2rem; margin-bottom:1.5rem; }
+  .scene-tc { font-family:var(--font-mono); font-size:0.64rem; letter-spacing:0.25em; color:var(--accent); text-transform:uppercase; margin-bottom:0.5rem; }
+  .scene-title { font-family:var(--font-display); font-size:1.3rem; text-transform:uppercase; margin-bottom:0.8rem; }
+  .scene-text { font-size:0.88rem; color:var(--muted); line-height:1.85; }
+
+  .rewatch-section { background:var(--bg2); border-top:1px solid var(--border); text-align:center; padding:6rem 2rem; }
+  .rewatch-stamp { display:inline-block; font-family:var(--font-display); font-size:clamp(1.6rem,4vw,2.8rem); text-transform:uppercase; color:var(--accent); border:3px solid var(--accent); padding:0.6rem 2.2rem; transform:rotate(-2deg); letter-spacing:0.04em; }
+  .rewatch-note { font-size:0.9rem; color:var(--muted); max-width:560px; margin:2rem auto 0; line-height:1.85; }
+
+  footer { padding:4rem 2rem; text-align:center; border-top:1px solid var(--border); }
+  .footer-back { font-family:var(--font-mono); letter-spacing:0.3em; font-size:0.66rem; text-transform:uppercase; color:var(--muted); text-decoration:none; transition:color 0.2s; }
+  .footer-back:hover { color:var(--accent); }
+
+  @keyframes fadeUp { from{opacity:0;transform:translateY(28px)} to{opacity:1;transform:translateY(0)} }
+  .reveal { opacity:0; transform:translateY(38px); transition:opacity 0.7s ease, transform 0.7s ease; }
+  .reveal.visible { opacity:1; transform:translateY(0); }
+</style>
+</head>
+<body>
+<div class="progress-bar" id="progress"></div>
+
+<nav>
+  <a href="index.html" class="nav-back">← All Cuts</a>
+  <div class="nav-score" id="navScore">10</div>
+</nav>
+
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-content">
+    <div class="cut-label">Final Cut No. 10</div>
+    <h1 class="hero-title">Chinatown</h1>
+    <div class="hero-director">dir. Roman Polanski</div>
+    <div class="hero-meta">1974 · Crime · 130 min</div>
+    <div class="hero-rule"></div>
+    <div class="scroll-hint">Roll film</div>
+  </div>
+</section>
+
+<div class="verdict-bar">A detective solves the case completely, understands everything, and saves no one. The perfect screenplay, and the reputation undersells it.</div>
+
+<section class="score-section">
+  <div class="score-inner">
+    <div class="score-display">
+      <div class="score-number">10<span>.0</span></div>
+      <div class="score-label">Out of ten</div>
+    </div>
+    <div>
+      <div class="score-verdict">Film noir resurrected in California sunlight, where the darkness turns out to have been the weather all along.</div>
+      <div class="score-defense">Towne's script is taught in every screenwriting course on earth, and unlike most syllabus monuments, it plays even better than it diagrams: every clue does double duty, every joke is a setup, and the mystery's solution is somehow both a municipal water scandal and the blackest family secret in American film. Nicholson is in every scene and never wastes one. The only argument against the 10 is the man who directed it, and I'll address that below rather than pretend it isn't in the room.</div>
+    </div>
+  </div>
+</section>
+
+<section class="craft-section">
+  <div class="section">
+    <div class="section-label reveal">The Bench</div>
+    <h2 class="section-title reveal">Craft <em>scorecard</em></h2>
+    <div class="craft-grid reveal">
+      <div class="craft-card">
+        <div class="craft-head"><span class="craft-name">Direction</span><span class="craft-score">9.7</span></div>
+        <div class="craft-meter"><span style="width:97%"></span></div>
+        <div class="craft-note">Polanski keeps the camera at Gittes' shoulder for the entire film, so we never learn anything before he does, and the famous ending, which he imposed over Towne's objections, is the cruelest correct decision in studio history. Immaculate, suffocating control.</div>
+      </div>
+      <div class="craft-card">
+        <div class="craft-head"><span class="craft-name">Cinematography</span><span class="craft-score">9.5</span></div>
+        <div class="craft-meter"><span style="width:95%"></span></div>
+        <div class="craft-note">John Alonzo shoots noir at high noon: drought light, dust haze, venetian-blind shadows rationed like water. The film looks parched, which is the plot. Widescreen compositions that put Gittes in the frame's corner, always slightly outmatched by the architecture of money.</div>
+      </div>
+      <div class="craft-card">
+        <div class="craft-head"><span class="craft-name">Acting</span><span class="craft-score">9.7</span></div>
+        <div class="craft-meter"><span style="width:97%"></span></div>
+        <div class="craft-note">Nicholson's most disciplined performance: cocky, wounded, and wearing a nose bandage through the entire second act like a clown forced to keep doing the job. Dunaway plays a woman made entirely of guarded flinches, and John Huston, in three scenes, creates the most frightening villain of the decade using nothing but courtliness and appetite.</div>
+      </div>
+      <div class="craft-card">
+        <div class="craft-head"><span class="craft-name">Writing</span><span class="craft-score">10</span></div>
+        <div class="craft-meter"><span style="width:100%"></span></div>
+        <div class="craft-note">The screenplay the form gets measured by. Towne braids a true history (LA's water grab) with a private horror, and makes each the metaphor for the other: a city raped of its water, a daughter raped of her childhood, the same man holding both deeds. Nothing announced, everything planted. "Bad for the glass" pays off forty minutes later. They don't write them like this; they never did, except once.</div>
+      </div>
+      <div class="craft-card">
+        <div class="craft-head"><span class="craft-name">Score &amp; Sound</span><span class="craft-score">9.6</span></div>
+        <div class="craft-meter"><span style="width:96%"></span></div>
+        <div class="craft-note">Jerry Goldsmith wrote it in ten days after the first score was thrown out, and produced the greatest noir music ever recorded: that lonely trumpet over four pianos and strange percussion, romance and rot in the same phrase. The film would lose a full point without it.</div>
+      </div>
+      <div class="craft-card">
+        <div class="craft-head"><span class="craft-name">Editing</span><span class="craft-score">9.3</span></div>
+        <div class="craft-meter"><span style="width:93%"></span></div>
+        <div class="craft-note">Sam O'Steen cuts at the speed of comprehension, never faster: the film is a procedural where every scene hands Gittes (and you) exactly one more piece. The final act accelerates like a trap springing, which is what it is.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-label reveal">Themes</div>
+  <h2 class="section-title reveal">What it's <em>actually</em> about</h2>
+  <div class="body-text reveal">
+    <p>It's about the limits of knowing. Detective stories sell a comforting theology: find the truth and the truth restores order. Chinatown agrees you can find the truth, Gittes finds all of it, every fraud, every body, every secret, and then demonstrates that knowledge and power are entirely different commodities. Noah Cross isn't defeated by exposure because exposure requires a public that can touch him, and there isn't one. "He owns the police." The film's nihilism isn't a mood; it's an argument, worked out step by step like a proof.</p>
+    <p>The water and the daughter are the same crime at two scales. Cross diverts the river to feed a future he intends to own ("The future, Mr. Gittes! The future!"), and he violated his daughter for the same reason: appetite that recognizes no boundary, not civic, not familial. Towne's masterstroke is making the incest revelation also the solution to the land fraud, so the film's most intimate horror and its most systemic one arrive in the same sentence: "She's my sister and my daughter."</p>
+    <p>And Chinatown itself, the place, appears only in the final minutes. For the whole film it's just Gittes' bad memory, a district where the cops were told to do "as little as possible" because they could never tell whose interests they were serving. It's not a neighborhood, it's a condition: the zone where good intentions make things worse. The last line tells him, and us, that the whole city was Chinatown all along.</p>
+  </div>
+</section>
+
+<section class="quote-section">
+  <div class="quote-bg"></div>
+  <div class="quote-text">"You see, Mr. Gittes, most people never have to face the fact that at the right time and the right place, they're capable of anything."</div>
+  <div class="quote-attr">Noah Cross — Chinatown</div>
+</section>
+
+<section class="section">
+  <div class="section-label reveal">Standout Scenes</div>
+  <h2 class="section-title reveal">The frames that <em>stay</em></h2>
+  <div class="reveal">
+    <div class="scene">
+      <div class="scene-tc">TC 00:45:00</div>
+      <div class="scene-title">The Nose</div>
+      <div class="scene-text">A switchblade, one sentence about nosy fellows, and the hero spends the rest of the film with his face bandaged like a vaudeville gag. (The thug holding the knife is Polanski himself, which is its own essay.) No other film has been brave enough to humiliate its detective this way, and Nicholson plays the wounded vanity better than the wound.</div>
+    </div>
+    <div class="scene">
+      <div class="scene-tc">TC 01:13:00</div>
+      <div class="scene-title">Lunch With Noah Cross</div>
+      <div class="scene-text">A courtly old man serves fish with the head still on and mispronounces Gittes' name with deliberate, smiling contempt, twice. Huston plays every line as hospitality and every pause as threat: "Just find the girl." You leave the scene knowing nothing new about the case and everything about the man, which is exactly Towne's design.</div>
+    </div>
+    <div class="scene">
+      <div class="scene-tc">TC 01:46:00</div>
+      <div class="scene-title">"My Sister, My Daughter"</div>
+      <div class="scene-text">Gittes, certain he's caught Evelyn in a lie, slaps the truth out of her, and the truth is worse than any lie in the genre's history. Dunaway delivers it in a voice that's been holding this since childhood, and Nicholson's face does the rare thing: a detective realizing the solution makes nothing better. The scene flips the entire film in ninety seconds and earns it.</div>
+    </div>
+    <div class="scene">
+      <div class="scene-tc">TC 02:04:00</div>
+      <div class="scene-title">Forget It, Jake</div>
+      <div class="scene-text">Everything converges on one street in Chinatown: the plan, the escape, the gunshot, the car horn that doesn't stop. Cross folds his granddaughter into his coat and walks her away from her mother's body while the police hold Gittes back, and his partner says the most famous closing line in American film. It's not consolation. It's the moral of a story that refuses to have one.</div>
+    </div>
+  </div>
+</section>
+
+<section class="section" style="padding-top:0;">
+  <div class="section-label reveal">Writing &amp; Dialogue</div>
+  <h2 class="section-title reveal">On the <em>page</em></h2>
+  <div class="body-text reveal">
+    <p>Towne writes detective dialogue as a class war fought in manners: Gittes performs gentility he doesn't have (the "respectable" divorce work he's slightly ashamed of), Cross performs warmth he definitely doesn't have, and Evelyn's stammer on the word "father" is a clue hiding in a speech pattern, planted an hour before it detonates. The structure is a perfect noose: three acts, each ending with Gittes confident he understands, each confidence more wrong than the last. Students are told to study the script's plant-and-payoff machinery, and they should, but its real lesson is tone: it's funny for ninety minutes, line for line one of the wittiest scripts of the 70s, so that the last half hour can take the floor out from under a room it spent the evening warming.</p>
+  </div>
+</section>
+
+<section class="section" style="padding-top:0;">
+  <div class="section-label reveal">The Honest Take</div>
+  <h2 class="section-title reveal">No <em>notes</em> withheld</h2>
+  <div class="body-text reveal">
+    <p>The film is a 10. The man who directed it fled the country three years later rather than face sentencing for a crime against a child, and the film's most chilling speech, about men capable of anything, was directed by one of them. I'm not going to pretend that doesn't sit in the room when I watch it now, and anyone who says great art settles the question in either direction is selling something. What I can say is what's on screen: the most perfectly constructed crime film ever made, an ending with the integrity to follow its own logic all the way down, and a final line people quote fifty years later in situations that have nothing to do with movies. That's permanence. The asterisk is on the man, not the work, and I keep them in separate ledgers because that's the only honest accounting I know how to do.</p>
+  </div>
+</section>
+
+<section class="rewatch-section">
+  <div class="section-label reveal">Rewatch Verdict</div>
+  <div class="reveal" style="margin-top:1.5rem;">
+    <span class="rewatch-stamp">Rewatch It</span>
+  </div>
+  <div class="rewatch-note reveal">The first viewing is the mystery. Every one after is the machine: watching Towne lay rails an hour ahead of the train, and watching Evelyn's every line mean two things. It rewards the third visit more than the first.</div>
+</section>
+
+<footer>
+  <a href="index.html" class="footer-back">← Back to all cuts</a>
+</footer>
+
+<script>
+  window.addEventListener('scroll', () => {
+    const el = document.documentElement;
+    const total = el.scrollHeight - el.clientHeight;
+    document.getElementById('progress').style.width = (total > 0 ? el.scrollTop / total * 100 : 0) + '%';
+    document.getElementById('navScore').classList.toggle('visible', el.scrollTop > window.innerHeight * 0.8);
+  }, { passive:true });
+
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold:0.12 });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+  const meters = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const span = e.target.querySelector('span');
+        span.style.transition = 'width 0.9s ease';
+        requestAnimationFrame(() => { span.style.width = span.dataset.w; });
+      }
+    });
+  }, { threshold:0.5 });
+  document.querySelectorAll('.craft-meter').forEach(m => {
+    const span = m.querySelector('span');
+    span.dataset.w = span.style.width;
+    span.style.width = '0%';
+    meters.observe(m);
+  });
+</script>
+</body>
+</html>

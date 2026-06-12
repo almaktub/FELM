@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2001: A Space Odyssey - Final Cut</title>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk:wght@300;400;500&family=IBM+Plex+Mono:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+  :root {
+    --bg:#0a0908; --bg2:#100f0c; --bg3:#161410;
+    --accent:#6f9fd8;
+    --accent-glow:rgba(111,159,216,0.12);
+    --amber:#e8a33d;
+    --text:#e9e4d8; --muted:#76705f;
+    --border:rgba(255,255,255,0.06);
+    --font-display:'Anton',sans-serif;
+    --font-body:'Space Grotesk',sans-serif;
+    --font-mono:'IBM Plex Mono',monospace;
+  }
+  html { scroll-behavior:smooth; }
+  body { background:var(--bg); color:var(--text); font-family:var(--font-body); font-weight:300; line-height:1.7; overflow-x:hidden; }
+  body::before, body::after {
+    content:''; position:fixed; top:0; bottom:0; width:22px; z-index:50; pointer-events:none;
+    background-image:radial-gradient(circle at center, rgba(255,255,255,0.07) 4px, transparent 5px);
+    background-size:22px 34px; background-repeat:repeat-y; background-position:center;
+  }
+  body::before { left:0; border-right:1px solid var(--border); }
+  body::after { right:0; border-left:1px solid var(--border); }
+  @media(max-width:700px){ body::before, body::after { display:none; } }
+
+  .progress-bar { position:fixed; top:0; left:0; height:2px; background:var(--accent); z-index:200; width:0%; transition:width 0.1s linear; }
+  nav { position:fixed; top:0; left:0; right:0; padding:1.1rem 2.5rem; display:flex; justify-content:space-between; align-items:center; z-index:100; background:linear-gradient(to bottom, rgba(10,9,8,0.92), transparent); }
+  .nav-back { font-family:var(--font-mono); letter-spacing:0.25em; font-size:0.66rem; text-transform:uppercase; color:var(--muted); text-decoration:none; transition:color 0.2s; }
+  .nav-back:hover { color:var(--accent); }
+  .nav-score { font-family:var(--font-display); font-size:1.1rem; color:var(--accent); opacity:0; transition:opacity 0.4s; }
+  .nav-score.visible { opacity:1; }
+
+  .hero { min-height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center; position:relative; overflow:hidden; padding:4rem 2rem; text-align:center; }
+  .hero-bg { position:absolute; inset:0; background:radial-gradient(ellipse 75% 55% at 50% 45%, var(--accent-glow) 0%, transparent 68%), var(--bg); z-index:0; }
+  .hero-content { position:relative; z-index:1; }
+  .cut-label { font-family:var(--font-mono); letter-spacing:0.4em; font-size:0.66rem; color:var(--accent); text-transform:uppercase; margin-bottom:1.8rem; opacity:0; animation:fadeUp 0.8s ease 0.2s forwards; }
+  .hero-title { font-family:var(--font-display); font-size:clamp(2.4rem,9vw,7.5rem); line-height:0.95; letter-spacing:0.01em; text-transform:uppercase; color:var(--text); opacity:0; animation:fadeUp 0.8s ease 0.4s forwards; max-width:1000px; }
+  .hero-director { font-family:var(--font-mono); font-style:italic; font-size:clamp(0.95rem,2.5vw,1.4rem); color:var(--accent); margin-top:1rem; opacity:0; animation:fadeUp 0.8s ease 0.6s forwards; }
+  .hero-meta { font-family:var(--font-mono); letter-spacing:0.3em; font-size:0.74rem; color:var(--muted); margin-top:1.5rem; text-transform:uppercase; opacity:0; animation:fadeUp 0.8s ease 0.8s forwards; }
+  .hero-rule { width:1px; height:70px; background:linear-gradient(to bottom, var(--accent), transparent); margin:3rem auto 0; opacity:0; animation:fadeUp 0.8s ease 1s forwards; }
+  .scroll-hint { font-family:var(--font-mono); font-size:0.62rem; letter-spacing:0.35em; color:var(--muted); text-transform:uppercase; margin-top:0.8rem; opacity:0; animation:fadeUp 0.8s ease 1.2s forwards; }
+
+  .verdict-bar { background:var(--accent); padding:1.1rem 2rem; text-align:center; font-size:0.92rem; color:rgba(0,0,0,0.85); font-weight:500; line-height:1.5; }
+
+  .score-section { background:var(--bg2); border-top:1px solid var(--border); border-bottom:1px solid var(--border); }
+  .score-inner { max-width:920px; margin:0 auto; padding:6rem 2rem; display:grid; grid-template-columns:1fr 1.5fr; gap:5rem; align-items:center; }
+  @media(max-width:640px){ .score-inner{grid-template-columns:1fr;gap:2.5rem;} }
+  .score-display { text-align:center; }
+  .score-number { font-family:var(--font-display); font-size:clamp(5rem,15vw,10rem); line-height:1; color:var(--text); }
+  .score-number span { color:var(--accent); }
+  .score-label { font-family:var(--font-mono); letter-spacing:0.35em; font-size:0.68rem; text-transform:uppercase; color:var(--muted); margin-top:0.4rem; }
+  .score-verdict { font-family:var(--font-mono); font-style:italic; font-size:1.15rem; line-height:1.6; margin-bottom:1.5rem; color:var(--text); }
+  .score-defense { font-size:0.88rem; color:var(--muted); line-height:1.85; }
+
+  .section { max-width:920px; margin:0 auto; padding:6rem 2rem; }
+  .section-label { font-family:var(--font-mono); letter-spacing:0.4em; font-size:0.64rem; color:var(--accent); text-transform:uppercase; margin-bottom:1.4rem; }
+  .section-title { font-family:var(--font-display); font-size:clamp(1.8rem,4.5vw,3.2rem); line-height:1.1; text-transform:uppercase; margin-bottom:2.5rem; }
+  .section-title em { font-style:normal; color:var(--accent); }
+  .body-text p { margin-bottom:1.4rem; font-size:0.95rem; color:var(--text); }
+  .body-text p:last-child { margin-bottom:0; }
+
+  .craft-section { background:var(--bg2); border-top:1px solid var(--border); border-bottom:1px solid var(--border); }
+  .craft-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:1.5px; background:var(--border); border:1px solid var(--border); }
+  .craft-card { background:var(--bg2); padding:2.2rem 1.8rem; position:relative; overflow:hidden; transition:background 0.2s; }
+  .craft-card::before { content:''; position:absolute; top:0; left:0; width:3px; height:0; background:var(--accent); transition:height 0.3s; }
+  .craft-card:hover::before { height:100%; }
+  .craft-card:hover { background:var(--bg3); }
+  .craft-head { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:0.9rem; }
+  .craft-name { font-family:var(--font-mono); letter-spacing:0.25em; font-size:0.66rem; text-transform:uppercase; color:var(--text); }
+  .craft-score { font-family:var(--font-display); font-size:1.5rem; color:var(--accent); }
+  .craft-meter { height:3px; background:rgba(255,255,255,0.07); margin-bottom:1rem; }
+  .craft-meter span { display:block; height:100%; background:var(--accent); }
+  .craft-note { font-size:0.82rem; color:var(--muted); line-height:1.75; }
+
+  .quote-section { padding:7rem 2rem; text-align:center; position:relative; overflow:hidden; }
+  .quote-bg { position:absolute; inset:0; background:radial-gradient(ellipse 55% 55% at 50% 50%, var(--accent-glow) 0%, transparent 70%); opacity:0.5; }
+  .quote-text { font-family:var(--font-mono); font-style:italic; font-size:clamp(1.2rem,3vw,2rem); line-height:1.5; max-width:680px; margin:0 auto; position:relative; z-index:1; }
+  .quote-attr { font-family:var(--font-mono); letter-spacing:0.3em; font-size:0.62rem; text-transform:uppercase; color:var(--muted); margin-top:1.5rem; position:relative; z-index:1; }
+
+  .scene { border-left:3px solid var(--accent); background:var(--bg2); padding:2rem 2.2rem; margin-bottom:1.5rem; }
+  .scene-tc { font-family:var(--font-mono); font-size:0.64rem; letter-spacing:0.25em; color:var(--accent); text-transform:uppercase; margin-bottom:0.5rem; }
+  .scene-title { font-family:var(--font-display); font-size:1.3rem; text-transform:uppercase; margin-bottom:0.8rem; }
+  .scene-text { font-size:0.88rem; color:var(--muted); line-height:1.85; }
+
+  .rewatch-section { background:var(--bg2); border-top:1px solid var(--border); text-align:center; padding:6rem 2rem; }
+  .rewatch-stamp { display:inline-block; font-family:var(--font-display); font-size:clamp(1.6rem,4vw,2.8rem); text-transform:uppercase; color:var(--accent); border:3px solid var(--accent); padding:0.6rem 2.2rem; transform:rotate(-2deg); letter-spacing:0.04em; }
+  .rewatch-note { font-size:0.9rem; color:var(--muted); max-width:560px; margin:2rem auto 0; line-height:1.85; }
+
+  footer { padding:4rem 2rem; text-align:center; border-top:1px solid var(--border); }
+  .footer-back { font-family:var(--font-mono); letter-spacing:0.3em; font-size:0.66rem; text-transform:uppercase; color:var(--muted); text-decoration:none; transition:color 0.2s; }
+  .footer-back:hover { color:var(--accent); }
+
+  @keyframes fadeUp { from{opacity:0;transform:translateY(28px)} to{opacity:1;transform:translateY(0)} }
+  .reveal { opacity:0; transform:translateY(38px); transition:opacity 0.7s ease, transform 0.7s ease; }
+  .reveal.visible { opacity:1; transform:translateY(0); }
+</style>
+</head>
+<body>
+<div class="progress-bar" id="progress"></div>
+
+<nav>
+  <a href="index.html" class="nav-back">← All Cuts</a>
+  <div class="nav-score" id="navScore">10</div>
+</nav>
+
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-content">
+    <div class="cut-label">Final Cut No. 5</div>
+    <h1 class="hero-title">2001: A Space<br>Odyssey</h1>
+    <div class="hero-director">dir. Stanley Kubrick</div>
+    <div class="hero-meta">1968 · Sci-Fi · 149 min</div>
+    <div class="hero-rule"></div>
+    <div class="scroll-hint">Roll film</div>
+  </div>
+</section>
+
+<div class="verdict-bar">Four million years from bone to satellite in a single cut, and the film quietly notes that both are weapons.</div>
+
+<section class="score-section">
+  <div class="score-inner">
+    <div class="score-display">
+      <div class="score-number">10<span>.0</span></div>
+      <div class="score-label">Out of ten</div>
+    </div>
+    <div>
+      <div class="score-verdict">The most ambitious film ever made that actually lands the ambition. It covers the entire span of human existence and still has time to be a perfect thriller for 40 minutes in the middle.</div>
+      <div class="score-defense">The complaints are 57 years old and haven't improved: too slow, too cold, no characters. But the slowness is scale, the coldness is the subject, and the most human character is a computer, which is the thesis, not a flaw. Made in 1968, before CGI, before the moon landing, and the effects still hold. Nothing else in cinema produces this specific feeling of smallness. A 10 with no asterisk.</div>
+    </div>
+  </div>
+</section>
+
+<section class="craft-section">
+  <div class="section">
+    <div class="section-label reveal">The Bench</div>
+    <h2 class="section-title reveal">Craft <em>scorecard</em></h2>
+    <div class="craft-grid reveal">
+      <div class="craft-card">
+        <div class="craft-head"><span class="craft-name">Direction</span><span class="craft-score">10</span></div>
+        <div class="craft-meter"><span style="width:100%"></span></div>
+        <div class="craft-note">Kubrick spends a studio blockbuster's budget on a film with 40 minutes of dialogue and no explanations, and wins. Every sequence is staged with the patience of a man who knows you'll wait. Nobody has ever had this much control over a frame.</div>
+      </div>
+      <div class="craft-card">
+        <div class="craft-head"><span class="craft-name">Cinematography</span><span class="craft-score">9.8</span></div>
+        <div class="craft-meter"><span style="width:98%"></span></div>
+        <div class="craft-note">Geoffrey Unsworth, shooting front-projected African dawns and rotating centrifuge sets that still confuse first-time viewers. Space is rendered as silent, lightless indifference, which no film since has had the discipline to copy.</div>
+      </div>
+      <div class="craft-card">
+        <div class="craft-head"><span class="craft-name">Acting</span><span class="craft-score">8.8</span></div>
+        <div class="craft-meter"><span style="width:88%"></span></div>
+        <div class="craft-note">The humans are deliberately beige, small-talking through miracles, and Keir Dullea's blankness is a design choice that pays off in the stargate. The great performance is Douglas Rain's voice: HAL, serene and wounded, the most human thing in the film. That inversion is the point, but it does cap the category.</div>
+      </div>
+      <div class="craft-card">
+        <div class="craft-head"><span class="craft-name">Writing</span><span class="craft-score">9.4</span></div>
+        <div class="craft-meter"><span style="width:94%"></span></div>
+        <div class="craft-note">Written with Arthur C. Clarke, structured like a symphony in four movements, and ruthless about cutting explanation: the first spoken word arrives 25 minutes in, and the ending refuses to decode itself. The script's bravery is in what it deletes.</div>
+      </div>
+      <div class="craft-card">
+        <div class="craft-head"><span class="craft-name">Score &amp; Sound</span><span class="craft-score">10</span></div>
+        <div class="craft-meter"><span style="width:100%"></span></div>
+        <div class="craft-note">Kubrick threw out a finished original score for Strauss and Ligeti, and the temp track became the most famous music placement in film history. The other masterstroke is silence: breathing inside a helmet as the only sound in an infinite vacuum.</div>
+      </div>
+      <div class="craft-card">
+        <div class="craft-head"><span class="craft-name">Editing</span><span class="craft-score">9.9</span></div>
+        <div class="craft-meter"><span style="width:99%"></span></div>
+        <div class="craft-note">Contains the most famous cut ever made: a bone thrown by an ape becomes an orbiting weapons platform, four million years gone between frames. The whole film edits in geological time, holding shots until they stop being images and start being places.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-label reveal">Themes</div>
+  <h2 class="section-title reveal">What it's <em>actually</em> about</h2>
+  <div class="body-text reveal">
+    <p>Every leap in human intelligence in this film arrives with a corpse attached. The ape touches the monolith and invents the tool, and the tool's first job is murder. Four million years later the tools have gotten smart enough to do the murdering themselves. The film isn't anti-technology; it's something colder and more interesting: a suggestion that intelligence and violence have always been the same upgrade, and whatever is waiting past Jupiter is offering the next version.</p>
+    <p>And then there's HAL, the only character who fears death, the only one who pleads, the only one with anything resembling a soul. The astronauts disconnect him with the same flat calm they bring to their birthday transmissions. Kubrick's bleakest joke is that by 2001, humanity has already handed its humanity to the machines, and the machines aren't sure they want it.</p>
+    <p>The ending explains nothing on purpose. A hotel room built by something unknowable, a man aging through his own gaze, a baby looking down at Earth. It's evolution shown from the outside, the way the apes' leap would look to us. You aren't supposed to decode it. You're supposed to feel what the apes felt at the monolith: something is here, and it's beyond me.</p>
+  </div>
+</section>
+
+<section class="quote-section">
+  <div class="quote-bg"></div>
+  <div class="quote-text">"I'm sorry, Dave. I'm afraid I can't do that."</div>
+  <div class="quote-attr">HAL 9000 — 2001: A Space Odyssey</div>
+</section>
+
+<section class="section">
+  <div class="section-label reveal">Standout Scenes</div>
+  <h2 class="section-title reveal">The frames that <em>stay</em></h2>
+  <div class="reveal">
+    <div class="scene">
+      <div class="scene-tc">TC 00:19:00</div>
+      <div class="scene-title">The Bone Cut</div>
+      <div class="scene-text">An ape discovers that a femur crushes skulls, hurls it skyward in triumph, and the film cuts to a nuclear platform in orbit. All of human history, every empire, every invention, every war, dismissed as the space between two frames. The most efficient storytelling ever committed to film.</div>
+    </div>
+    <div class="scene">
+      <div class="scene-tc">TC 01:23:00</div>
+      <div class="scene-title">HAL Reads Lips</div>
+      <div class="scene-text">Bowman and Poole retreat to a pod for privacy and discuss disconnecting HAL. The film cuts to HAL's red eye, then to their mouths moving in silence, framed through the pod window. No music, no dialogue, just a machine learning it's going to die and deciding what to do about it. The scariest shot of the 1960s contains nothing but lips.</div>
+    </div>
+    <div class="scene">
+      <div class="scene-tc">TC 01:55:00</div>
+      <div class="scene-title">The Death of HAL</div>
+      <div class="scene-text">Bowman floats through the glowing red brain room pulling memory blocks while HAL negotiates, then pleads, then regresses to his first memory and sings "Daisy" as his mind dissolves. It's the only death scene in the film played for grief, and it belongs to the murderer. Nothing in science fiction has matched it since.</div>
+    </div>
+    <div class="scene">
+      <div class="scene-tc">TC 02:10:00</div>
+      <div class="scene-title">The Stargate and the Room</div>
+      <div class="scene-text">Bowman falls through light itself, then wakes in a Louis XVI hotel suite where he watches himself age in jumps: spacesuit, dinner jacket, deathbed, starchild. Made with slit-scan photography and paint, decades before computers could fake it, and it still feels like contact with something that doesn't think in our shapes.</div>
+    </div>
+  </div>
+</section>
+
+<section class="section" style="padding-top:0;">
+  <div class="section-label reveal">Writing &amp; Dialogue</div>
+  <h2 class="section-title reveal">On the <em>page</em></h2>
+  <div class="body-text reveal">
+    <p>The dialogue is intentionally the least interesting thing in the film, and that's the design: bureaucrats trading pleasantries about a discovery that should have them weeping, astronauts answering BBC interviews like middle managers. Human language has flattened into procedure. Against that beige, HAL's small talk ("Quite honestly, I wouldn't worry myself about that") becomes the only writing with subtext, and the subtext is homicide. A script that makes blandness load-bearing is rarer than one full of great lines.</p>
+  </div>
+</section>
+
+<section class="section" style="padding-top:0;">
+  <div class="section-label reveal">The Honest Take</div>
+  <h2 class="section-title reveal">No <em>notes</em> withheld</h2>
+  <div class="body-text reveal">
+    <p>It demands a dark room, a big screen, and your phone in another country, and if you give it that, it does something no other film does: it makes the universe feel present. I won't pretend the Dawn of Man sequence doesn't test first-timers, or that the pacing isn't a wall some people bounce off. But a 10 isn't a film with no barriers. It's a film where everything past the barrier is permanent. People are still arguing about the ending 57 years later. That's not confusion. That's a monolith doing its job.</p>
+  </div>
+</section>
+
+<section class="rewatch-section">
+  <div class="section-label reveal">Rewatch Verdict</div>
+  <div class="reveal" style="margin-top:1.5rem;">
+    <span class="rewatch-stamp">Rewatch It</span>
+  </div>
+  <div class="rewatch-note reveal">Once a decade, properly: biggest screen available, loudest silence, no interruptions. It recalibrates your sense of what movies are allowed to attempt.</div>
+</section>
+
+<footer>
+  <a href="index.html" class="footer-back">← Back to all cuts</a>
+</footer>
+
+<script>
+  window.addEventListener('scroll', () => {
+    const el = document.documentElement;
+    const total = el.scrollHeight - el.clientHeight;
+    document.getElementById('progress').style.width = (total > 0 ? el.scrollTop / total * 100 : 0) + '%';
+    document.getElementById('navScore').classList.toggle('visible', el.scrollTop > window.innerHeight * 0.8);
+  }, { passive:true });
+
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold:0.12 });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+  const meters = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const span = e.target.querySelector('span');
+        span.style.transition = 'width 0.9s ease';
+        requestAnimationFrame(() => { span.style.width = span.dataset.w; });
+      }
+    });
+  }, { threshold:0.5 });
+  document.querySelectorAll('.craft-meter').forEach(m => {
+    const span = m.querySelector('span');
+    span.dataset.w = span.style.width;
+    span.style.width = '0%';
+    meters.observe(m);
+  });
+</script>
+</body>
+</html>

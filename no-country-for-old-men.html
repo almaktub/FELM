@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>No Country for Old Men - Final Cut</title>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk:wght@300;400;500&family=IBM+Plex+Mono:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+  :root {
+    --bg:#0a0908; --bg2:#100f0c; --bg3:#161410;
+    --accent:#a89968;
+    --accent-glow:rgba(168,153,104,0.12);
+    --amber:#e8a33d;
+    --text:#e9e4d8; --muted:#76705f;
+    --border:rgba(255,255,255,0.06);
+    --font-display:'Anton',sans-serif;
+    --font-body:'Space Grotesk',sans-serif;
+    --font-mono:'IBM Plex Mono',monospace;
+  }
+  html { scroll-behavior:smooth; }
+  body { background:var(--bg); color:var(--text); font-family:var(--font-body); font-weight:300; line-height:1.7; overflow-x:hidden; }
+  body::before, body::after {
+    content:''; position:fixed; top:0; bottom:0; width:22px; z-index:50; pointer-events:none;
+    background-image:radial-gradient(circle at center, rgba(255,255,255,0.07) 4px, transparent 5px);
+    background-size:22px 34px; background-repeat:repeat-y; background-position:center;
+  }
+  body::before { left:0; border-right:1px solid var(--border); }
+  body::after { right:0; border-left:1px solid var(--border); }
+  @media(max-width:700px){ body::before, body::after { display:none; } }
+
+  .progress-bar { position:fixed; top:0; left:0; height:2px; background:var(--accent); z-index:200; width:0%; transition:width 0.1s linear; }
+  nav { position:fixed; top:0; left:0; right:0; padding:1.1rem 2.5rem; display:flex; justify-content:space-between; align-items:center; z-index:100; background:linear-gradient(to bottom, rgba(10,9,8,0.92), transparent); }
+  .nav-back { font-family:var(--font-mono); letter-spacing:0.25em; font-size:0.66rem; text-transform:uppercase; color:var(--muted); text-decoration:none; transition:color 0.2s; }
+  .nav-back:hover { color:var(--accent); }
+  .nav-score { font-family:var(--font-display); font-size:1.1rem; color:var(--accent); opacity:0; transition:opacity 0.4s; }
+  .nav-score.visible { opacity:1; }
+
+  .hero { min-height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center; position:relative; overflow:hidden; padding:4rem 2rem; text-align:center; }
+  .hero-bg { position:absolute; inset:0; background:radial-gradient(ellipse 75% 55% at 50% 45%, var(--accent-glow) 0%, transparent 68%), var(--bg); z-index:0; }
+  .hero-content { position:relative; z-index:1; }
+  .cut-label { font-family:var(--font-mono); letter-spacing:0.4em; font-size:0.66rem; color:var(--accent); text-transform:uppercase; margin-bottom:1.8rem; opacity:0; animation:fadeUp 0.8s ease 0.2s forwards; }
+  .hero-title { font-family:var(--font-display); font-size:clamp(2.4rem,9vw,7.5rem); line-height:0.95; letter-spacing:0.01em; text-transform:uppercase; color:var(--text); opacity:0; animation:fadeUp 0.8s ease 0.4s forwards; max-width:1000px; }
+  .hero-director { font-family:var(--font-mono); font-style:italic; font-size:clamp(0.95rem,2.5vw,1.4rem); color:var(--accent); margin-top:1rem; opacity:0; animation:fadeUp 0.8s ease 0.6s forwards; }
+  .hero-meta { font-family:var(--font-mono); letter-spacing:0.3em; font-size:0.74rem; color:var(--muted); margin-top:1.5rem; text-transform:uppercase; opacity:0; animation:fadeUp 0.8s ease 0.8s forwards; }
+  .hero-rule { width:1px; height:70px; background:linear-gradient(to bottom, var(--accent), transparent); margin:3rem auto 0; opacity:0; animation:fadeUp 0.8s ease 1s forwards; }
+  .scroll-hint { font-family:var(--font-mono); font-size:0.62rem; letter-spacing:0.35em; color:var(--muted); text-transform:uppercase; margin-top:0.8rem; opacity:0; animation:fadeUp 0.8s ease 1.2s forwards; }
+
+  .verdict-bar { background:var(--accent); padding:1.1rem 2rem; text-align:center; font-size:0.92rem; color:rgba(0,0,0,0.85); font-weight:500; line-height:1.5; }
+
+  .score-section { background:var(--bg2); border-top:1px solid var(--border); border-bottom:1px solid var(--border); }
+  .score-inner { max-width:920px; margin:0 auto; padding:6rem 2rem; display:grid; grid-template-columns:1fr 1.5fr; gap:5rem; align-items:center; }
+  @media(max-width:640px){ .score-inner{grid-template-columns:1fr;gap:2.5rem;} }
+  .score-display { text-align:center; }
+  .score-number { font-family:var(--font-display); font-size:clamp(5rem,15vw,10rem); line-height:1; color:var(--text); }
+  .score-number span { color:var(--accent); }
+  .score-label { font-family:var(--font-mono); letter-spacing:0.35em; font-size:0.68rem; text-transform:uppercase; color:var(--muted); margin-top:0.4rem; }
+  .score-verdict { font-family:var(--font-mono); font-style:italic; font-size:1.15rem; line-height:1.6; margin-bottom:1.5rem; color:var(--text); }
+  .score-defense { font-size:0.88rem; color:var(--muted); line-height:1.85; }
+
+  .section { max-width:920px; margin:0 auto; padding:6rem 2rem; }
+  .section-label { font-family:var(--font-mono); letter-spacing:0.4em; font-size:0.64rem; color:var(--accent); text-transform:uppercase; margin-bottom:1.4rem; }
+  .section-title { font-family:var(--font-display); font-size:clamp(1.8rem,4.5vw,3.2rem); line-height:1.1; text-transform:uppercase; margin-bottom:2.5rem; }
+  .section-title em { font-style:normal; color:var(--accent); }
+  .body-text p { margin-bottom:1.4rem; font-size:0.95rem; color:var(--text); }
+  .body-text p:last-child { margin-bottom:0; }
+
+  .craft-section { background:var(--bg2); border-top:1px solid var(--border); border-bottom:1px solid var(--border); }
+  .craft-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:1.5px; background:var(--border); border:1px solid var(--border); }
+  .craft-card { background:var(--bg2); padding:2.2rem 1.8rem; position:relative; overflow:hidden; transition:background 0.2s; }
+  .craft-card::before { content:''; position:absolute; top:0; left:0; width:3px; height:0; background:var(--accent); transition:height 0.3s; }
+  .craft-card:hover::before { height:100%; }
+  .craft-card:hover { background:var(--bg3); }
+  .craft-head { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:0.9rem; }
+  .craft-name { font-family:var(--font-mono); letter-spacing:0.25em; font-size:0.66rem; text-transform:uppercase; color:var(--text); }
+  .craft-score { font-family:var(--font-display); font-size:1.5rem; color:var(--accent); }
+  .craft-meter { height:3px; background:rgba(255,255,255,0.07); margin-bottom:1rem; }
+  .craft-meter span { display:block; height:100%; background:var(--accent); }
+  .craft-note { font-size:0.82rem; color:var(--muted); line-height:1.75; }
+
+  .quote-section { padding:7rem 2rem; text-align:center; position:relative; overflow:hidden; }
+  .quote-bg { position:absolute; inset:0; background:radial-gradient(ellipse 55% 55% at 50% 50%, var(--accent-glow) 0%, transparent 70%); opacity:0.5; }
+  .quote-text { font-family:var(--font-mono); font-style:italic; font-size:clamp(1.2rem,3vw,2rem); line-height:1.5; max-width:680px; margin:0 auto; position:relative; z-index:1; }
+  .quote-attr { font-family:var(--font-mono); letter-spacing:0.3em; font-size:0.62rem; text-transform:uppercase; color:var(--muted); margin-top:1.5rem; position:relative; z-index:1; }
+
+  .scene { border-left:3px solid var(--accent); background:var(--bg2); padding:2rem 2.2rem; margin-bottom:1.5rem; }
+  .scene-tc { font-family:var(--font-mono); font-size:0.64rem; letter-spacing:0.25em; color:var(--accent); text-transform:uppercase; margin-bottom:0.5rem; }
+  .scene-title { font-family:var(--font-display); font-size:1.3rem; text-transform:uppercase; margin-bottom:0.8rem; }
+  .scene-text { font-size:0.88rem; color:var(--muted); line-height:1.85; }
+
+  .rewatch-section { background:var(--bg2); border-top:1px solid var(--border); text-align:center; padding:6rem 2rem; }
+  .rewatch-stamp { display:inline-block; font-family:var(--font-display); font-size:clamp(1.6rem,4vw,2.8rem); text-transform:uppercase; color:var(--accent); border:3px solid var(--accent); padding:0.6rem 2.2rem; transform:rotate(-2deg); letter-spacing:0.04em; }
+  .rewatch-note { font-size:0.9rem; color:var(--muted); max-width:560px; margin:2rem auto 0; line-height:1.85; }
+
+  footer { padding:4rem 2rem; text-align:center; border-top:1px solid var(--border); }
+  .footer-back { font-family:var(--font-mono); letter-spacing:0.3em; font-size:0.66rem; text-transform:uppercase; color:var(--muted); text-decoration:none; transition:color 0.2s; }
+  .footer-back:hover { color:var(--accent); }
+
+  @keyframes fadeUp { from{opacity:0;transform:translateY(28px)} to{opacity:1;transform:translateY(0)} }
+  .reveal { opacity:0; transform:translateY(38px); transition:opacity 0.7s ease, transform 0.7s ease; }
+  .reveal.visible { opacity:1; transform:translateY(0); }
+</style>
+</head>
+<body>
+<div class="progress-bar" id="progress"></div>
+
+<nav>
+  <a href="index.html" class="nav-back">← All Cuts</a>
+  <div class="nav-score" id="navScore">10</div>
+</nav>
+
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-content">
+    <div class="cut-label">Final Cut No. 6</div>
+    <h1 class="hero-title">No Country<br>For Old Men</h1>
+    <div class="hero-director">dir. Joel &amp; Ethan Coen</div>
+    <div class="hero-meta">2007 · Thriller · 122 min</div>
+    <div class="hero-rule"></div>
+    <div class="scroll-hint">Roll film</div>
+  </div>
+</section>
+
+<div class="verdict-bar">A thriller with no score, no rescue, and no comfort. The country was never good for old men. They just remember it kinder.</div>
+
+<section class="score-section">
+  <div class="score-inner">
+    <div class="score-display">
+      <div class="score-number">10<span>.0</span></div>
+      <div class="score-label">Out of ten</div>
+    </div>
+    <div>
+      <div class="score-verdict">The Coens remove every safety net a thriller is supposed to have, and the tension doubles. Then they end on an old man's dream and dare you to call it anticlimax.</div>
+      <div class="score-defense">The famous objections, Llewelyn dying offscreen and the quiet ending, are the two best decisions in the film. The movie was never about who wins the chase. It's about Bell watching a world he can't read anymore, so the climax happens to him, in a chair, telling his wife about his father carrying fire in the dark. Airtight craft in every department, in service of an idea that actually deserves it. That's a 10.</div>
+    </div>
+  </div>
+</section>
+
+<section class="craft-section">
+  <div class="section">
+    <div class="section-label reveal">The Bench</div>
+    <h2 class="section-title reveal">Craft <em>scorecard</em></h2>
+    <div class="craft-grid reveal">
+      <div class="craft-card">
+        <div class="craft-head"><span class="craft-name">Direction</span><span class="craft-score">9.9</span></div>
+        <div class="craft-meter"><span style="width:99%"></span></div>
+        <div class="craft-note">The Coens at maximum restraint, no quirk, no irony armor, just procedure filmed with total patience. They shoot tracking, tracking, waiting. Every setup teaches you the geography before the violence uses it.</div>
+      </div>
+      <div class="craft-card">
+        <div class="craft-head"><span class="craft-name">Cinematography</span><span class="craft-score">9.7</span></div>
+        <div class="craft-meter"><span style="width:97%"></span></div>
+        <div class="craft-note">Roger Deakins shoots West Texas as a place that predates mercy: heat-bleached days, nights lit by nothing but headlights and muzzle flash. The motel doorways, the river at dawn, the transponder glow. Not a wasted frame.</div>
+      </div>
+      <div class="craft-card">
+        <div class="craft-head"><span class="craft-name">Acting</span><span class="craft-score">9.8</span></div>
+        <div class="craft-meter"><span style="width:98%"></span></div>
+        <div class="craft-note">Bardem built the most frightening screen villain of the century out of stillness, a pageboy haircut, and customer-service politeness. Jones does the opposite job, all erosion and grief, and Brolin holds the middle as a capable man exactly one size too small for what found him. Kelly Macdonald wins her one big scene outright.</div>
+      </div>
+      <div class="craft-card">
+        <div class="craft-head"><span class="craft-name">Writing</span><span class="craft-score">9.7</span></div>
+        <div class="craft-meter"><span style="width:97%"></span></div>
+        <div class="craft-note">McCarthy's novel adapted with surgical fidelity. The coin-toss scenes are the showpieces, but the connective tissue is just as exact: nobody explains anything twice, and the film trusts you to track money, wounds, and time zones on your own.</div>
+      </div>
+      <div class="craft-card">
+        <div class="craft-head"><span class="craft-name">Score &amp; Sound</span><span class="craft-score">10</span></div>
+        <div class="craft-meter"><span style="width:100%"></span></div>
+        <div class="craft-note">Carter Burwell's score is roughly 16 minutes of near-subliminal tones; functionally, the film has no music. What it has instead is the best sound design ever put in a thriller: boot scrapes on motel carpet, a phone ringing like a gunshot, the cattle gun's hiss, wind as the only witness.</div>
+      </div>
+      <div class="craft-card">
+        <div class="craft-head"><span class="craft-name">Editing</span><span class="craft-score">9.6</span></div>
+        <div class="craft-meter"><span style="width:96%"></span></div>
+        <div class="craft-note">The Coens cut it themselves under their alias, and the discipline shows: scenes end a beat early, violence arrives mid-shot, and the film's most important death happens in the space between two scenes. The hotel shootout is cut to the rhythm of listening.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-label reveal">Themes</div>
+  <h2 class="section-title reveal">What it's <em>actually</em> about</h2>
+  <div class="body-text reveal">
+    <p>Chigurh isn't a serial killer, he's a theology. He offers his victims the coin because he genuinely believes he's not the one deciding; the universe is, and he's just the delivery mechanism. The film never disproves him. Carla Jean's refusal to call the toss is the closest anyone comes to beating him: she makes him own the choice, and his answer ("I got here the same way the coin did") is the scariest line in the film because he believes it.</p>
+    <p>The deeper subject is Bell, and through him, the lie inside nostalgia. He keeps saying the country has changed, that the old-timers never had to face this. Then his crippled uncle Ellis tells him about a sheriff gunned down on his own porch in 1909. The violence was always here. What's changed is Bell, older now, finally seeing it without the filter. "You can't stop what's coming. That's vanity." The title isn't a complaint about modernity. It's a diagnosis of memory.</p>
+  </div>
+</section>
+
+<section class="quote-section">
+  <div class="quote-bg"></div>
+  <div class="quote-text">"What's the most you ever lost on a coin toss?"</div>
+  <div class="quote-attr">Anton Chigurh — No Country for Old Men</div>
+</section>
+
+<section class="section">
+  <div class="section-label reveal">Standout Scenes</div>
+  <h2 class="section-title reveal">The frames that <em>stay</em></h2>
+  <div class="reveal">
+    <div class="scene">
+      <div class="scene-tc">TC 00:21:00</div>
+      <div class="scene-title">The Gas Station Coin Toss</div>
+      <div class="scene-text">A friendly old proprietor makes small talk about the weather and ends up wagering his life without ever being told the stakes. Bardem turns "call it" into an incantation. The scene contains no violence and no raised voices, and it's more frightening than any kill in the film. Masterclass is an overused word; this is the actual class.</div>
+    </div>
+    <div class="scene">
+      <div class="scene-tc">TC 01:02:00</div>
+      <div class="scene-title">The Hotel Eagle Shootout</div>
+      <div class="scene-text">Llewelyn sits in a dark room watching the light under the door, the phone rings, and the next six minutes are pure geometry: a transponder beep, a lock punched out, shotgun blasts traded across a Texas street at 2am. No music ever intrudes. It's the best action sequence of its decade and it's built entirely out of listening.</div>
+    </div>
+    <div class="scene">
+      <div class="scene-tc">TC 01:47:00</div>
+      <div class="scene-title">Carla Jean Refuses the Coin</div>
+      <div class="scene-text">"The coin don't have no say. It's just you." The one person in the film who sees Chigurh clearly is an unarmed woman in a bedroom, and she dismantles his entire religion in two sentences. He kills her anyway, checking his boots on the porch after. The film gives her the moral victory and him the world, which is exactly the point.</div>
+    </div>
+    <div class="scene">
+      <div class="scene-tc">TC 01:57:00</div>
+      <div class="scene-title">The Dream</div>
+      <div class="scene-text">Bell, retired and useless at his own kitchen table, describes two dreams about his dead father. In the second, his father rides past him in a cold mountain dark, carrying fire in a horn, going ahead to make a fire in all that cold. "And then I woke up." Cut to black. The film hands you its whole meaning in the last 90 seconds and trusts you to hold it.</div>
+    </div>
+  </div>
+</section>
+
+<section class="section" style="padding-top:0;">
+  <div class="section-label reveal">Writing &amp; Dialogue</div>
+  <h2 class="section-title reveal">On the <em>page</em></h2>
+  <div class="body-text reveal">
+    <p>McCarthy's dialogue survives the trip to screen intact because the Coens understood it's a film about people talking past each other: Chigurh speaks in riddles that are actually literal, Bell speaks in stories that are actually griefs, and Llewelyn barely speaks at all because he thinks competence is a language. The wit is bone-dry ("If I don't come back, tell mother I love her." "Your mother's dead, Llewelyn." "Well then I'll tell her myself."). And the structure does something quietly radical: it swaps protagonists in the final act and asks you to grieve the genre itself.</p>
+  </div>
+</section>
+
+<section class="section" style="padding-top:0;">
+  <div class="section-label reveal">The Honest Take</div>
+  <h2 class="section-title reveal">No <em>notes</em> withheld</h2>
+  <div class="body-text reveal">
+    <p>I've heard every case against the ending and I think they're all reviews of a different, worse movie that the Coens refused to make. This one took the most reliable pleasure machine in cinema, the chase thriller, and removed the payout to show you what the machine was really doing. It's also, scene for scene, the most controlled filmmaking of the 2000s alongside There Will Be Blood, which came out the same year, from the same desert, sharing a sound crew. Some year, 2007.</p>
+  </div>
+</section>
+
+<section class="rewatch-section">
+  <div class="section-label reveal">Rewatch Verdict</div>
+  <div class="reveal" style="margin-top:1.5rem;">
+    <span class="rewatch-stamp">Rewatch It</span>
+  </div>
+  <div class="rewatch-note reveal">First watch is for the chase. Every one after is for Bell, and the film quietly reorganizes itself around him once you know where it's headed. The coin toss scenes never lose a volt.</div>
+</section>
+
+<footer>
+  <a href="index.html" class="footer-back">← Back to all cuts</a>
+</footer>
+
+<script>
+  window.addEventListener('scroll', () => {
+    const el = document.documentElement;
+    const total = el.scrollHeight - el.clientHeight;
+    document.getElementById('progress').style.width = (total > 0 ? el.scrollTop / total * 100 : 0) + '%';
+    document.getElementById('navScore').classList.toggle('visible', el.scrollTop > window.innerHeight * 0.8);
+  }, { passive:true });
+
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold:0.12 });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+  const meters = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const span = e.target.querySelector('span');
+        span.style.transition = 'width 0.9s ease';
+        requestAnimationFrame(() => { span.style.width = span.dataset.w; });
+      }
+    });
+  }, { threshold:0.5 });
+  document.querySelectorAll('.craft-meter').forEach(m => {
+    const span = m.querySelector('span');
+    span.dataset.w = span.style.width;
+    span.style.width = '0%';
+    meters.observe(m);
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Goodfellas - Final Cut</title>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk:wght@300;400;500&family=IBM+Plex+Mono:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+  :root {
+    --bg:#0a0908; --bg2:#100f0c; --bg3:#161410;
+    --accent:#9e3347;
+    --accent-glow:rgba(158,51,71,0.12);
+    --amber:#e8a33d;
+    --text:#e9e4d8; --muted:#76705f;
+    --border:rgba(255,255,255,0.06);
+    --font-display:'Anton',sans-serif;
+    --font-body:'Space Grotesk',sans-serif;
+    --font-mono:'IBM Plex Mono',monospace;
+  }
+  html { scroll-behavior:smooth; }
+  body { background:var(--bg); color:var(--text); font-family:var(--font-body); font-weight:300; line-height:1.7; overflow-x:hidden; }
+  body::before, body::after {
+    content:''; position:fixed; top:0; bottom:0; width:22px; z-index:50; pointer-events:none;
+    background-image:radial-gradient(circle at center, rgba(255,255,255,0.07) 4px, transparent 5px);
+    background-size:22px 34px; background-repeat:repeat-y; background-position:center;
+  }
+  body::before { left:0; border-right:1px solid var(--border); }
+  body::after { right:0; border-left:1px solid var(--border); }
+  @media(max-width:700px){ body::before, body::after { display:none; } }
+
+  .progress-bar { position:fixed; top:0; left:0; height:2px; background:var(--accent); z-index:200; width:0%; transition:width 0.1s linear; }
+  nav { position:fixed; top:0; left:0; right:0; padding:1.1rem 2.5rem; display:flex; justify-content:space-between; align-items:center; z-index:100; background:linear-gradient(to bottom, rgba(10,9,8,0.92), transparent); }
+  .nav-back { font-family:var(--font-mono); letter-spacing:0.25em; font-size:0.66rem; text-transform:uppercase; color:var(--muted); text-decoration:none; transition:color 0.2s; }
+  .nav-back:hover { color:var(--accent); }
+  .nav-score { font-family:var(--font-display); font-size:1.1rem; color:var(--accent); opacity:0; transition:opacity 0.4s; }
+  .nav-score.visible { opacity:1; }
+
+  .hero { min-height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center; position:relative; overflow:hidden; padding:4rem 2rem; text-align:center; }
+  .hero-bg { position:absolute; inset:0; background:radial-gradient(ellipse 75% 55% at 50% 45%, var(--accent-glow) 0%, transparent 68%), var(--bg); z-index:0; }
+  .hero-content { position:relative; z-index:1; }
+  .cut-label { font-family:var(--font-mono); letter-spacing:0.4em; font-size:0.66rem; color:var(--accent); text-transform:uppercase; margin-bottom:1.8rem; opacity:0; animation:fadeUp 0.8s ease 0.2s forwards; }
+  .hero-title { font-family:var(--font-display); font-size:clamp(3.4rem,14vw,12rem); line-height:0.92; letter-spacing:0.01em; text-transform:uppercase; color:var(--text); opacity:0; animation:fadeUp 0.8s ease 0.4s forwards; max-width:1000px; }
+  .hero-director { font-family:var(--font-mono); font-style:italic; font-size:clamp(0.95rem,2.5vw,1.4rem); color:var(--accent); margin-top:1rem; opacity:0; animation:fadeUp 0.8s ease 0.6s forwards; }
+  .hero-meta { font-family:var(--font-mono); letter-spacing:0.3em; font-size:0.74rem; color:var(--muted); margin-top:1.5rem; text-transform:uppercase; opacity:0; animation:fadeUp 0.8s ease 0.8s forwards; }
+  .hero-rule { width:1px; height:70px; background:linear-gradient(to bottom, var(--accent), transparent); margin:3rem auto 0; opacity:0; animation:fadeUp 0.8s ease 1s forwards; }
+  .scroll-hint { font-family:var(--font-mono); font-size:0.62rem; letter-spacing:0.35em; color:var(--muted); text-transform:uppercase; margin-top:0.8rem; opacity:0; animation:fadeUp 0.8s ease 1.2s forwards; }
+
+  .verdict-bar { background:var(--accent); padding:1.1rem 2rem; text-align:center; font-size:0.92rem; color:rgba(255,255,255,0.92); font-weight:500; line-height:1.5; }
+
+  .score-section { background:var(--bg2); border-top:1px solid var(--border); border-bottom:1px solid var(--border); }
+  .score-inner { max-width:920px; margin:0 auto; padding:6rem 2rem; display:grid; grid-template-columns:1fr 1.5fr; gap:5rem; align-items:center; }
+  @media(max-width:640px){ .score-inner{grid-template-columns:1fr;gap:2.5rem;} }
+  .score-display { text-align:center; }
+  .score-number { font-family:var(--font-display); font-size:clamp(5rem,15vw,10rem); line-height:1; color:var(--text); }
+  .score-number span { color:var(--accent); }
+  .score-label { font-family:var(--font-mono); letter-spacing:0.35em; font-size:0.68rem; text-transform:uppercase; color:var(--muted); margin-top:0.4rem; }
+  .score-verdict { font-family:var(--font-mono); font-style:italic; font-size:1.15rem; line-height:1.6; margin-bottom:1.5rem; color:var(--text); }
+  .score-defense { font-size:0.88rem; color:var(--muted); line-height:1.85; }
+
+  .section { max-width:920px; margin:0 auto; padding:6rem 2rem; }
+  .section-label { font-family:var(--font-mono); letter-spacing:0.4em; font-size:0.64rem; color:var(--accent); text-transform:uppercase; margin-bottom:1.4rem; }
+  .section-title { font-family:var(--font-display); font-size:clamp(1.8rem,4.5vw,3.2rem); line-height:1.1; text-transform:uppercase; margin-bottom:2.5rem; }
+  .section-title em { font-style:normal; color:var(--accent); }
+  .body-text p { margin-bottom:1.4rem; font-size:0.95rem; color:var(--text); }
+  .body-text p:last-child { margin-bottom:0; }
+
+  .craft-section { background:var(--bg2); border-top:1px solid var(--border); border-bottom:1px solid var(--border); }
+  .craft-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:1.5px; background:var(--border); border:1px solid var(--border); }
+  .craft-card { background:var(--bg2); padding:2.2rem 1.8rem; position:relative; overflow:hidden; transition:background 0.2s; }
+  .craft-card::before { content:''; position:absolute; top:0; left:0; width:3px; height:0; background:var(--accent); transition:height 0.3s; }
+  .craft-card:hover::before { height:100%; }
+  .craft-card:hover { background:var(--bg3); }
+  .craft-head { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:0.9rem; }
+  .craft-name { font-family:var(--font-mono); letter-spacing:0.25em; font-size:0.66rem; text-transform:uppercase; color:var(--text); }
+  .craft-score { font-family:var(--font-display); font-size:1.5rem; color:var(--accent); }
+  .craft-meter { height:3px; background:rgba(255,255,255,0.07); margin-bottom:1rem; }
+  .craft-meter span { display:block; height:100%; background:var(--accent); }
+  .craft-note { font-size:0.82rem; color:var(--muted); line-height:1.75; }
+
+  .quote-section { padding:7rem 2rem; text-align:center; position:relative; overflow:hidden; }
+  .quote-bg { position:absolute; inset:0; background:radial-gradient(ellipse 55% 55% at 50% 50%, var(--accent-glow) 0%, transparent 70%); opacity:0.5; }
+  .quote-text { font-family:var(--font-mono); font-style:italic; font-size:clamp(1.2rem,3vw,2rem); line-height:1.5; max-width:680px; margin:0 auto; position:relative; z-index:1; }
+  .quote-attr { font-family:var(--font-mono); letter-spacing:0.3em; font-size:0.62rem; text-transform:uppercase; color:var(--muted); margin-top:1.5rem; position:relative; z-index:1; }
+
+  .scene { border-left:3px solid var(--accent); background:var(--bg2); padding:2rem 2.2rem; margin-bottom:1.5rem; }
+  .scene-tc { font-family:var(--font-mono); font-size:0.64rem; letter-spacing:0.25em; color:var(--accent); text-transform:uppercase; margin-bottom:0.5rem; }
+  .scene-title { font-family:var(--font-display); font-size:1.3rem; text-transform:uppercase; margin-bottom:0.8rem; }
+  .scene-text { font-size:0.88rem; color:var(--muted); line-height:1.85; }
+
+  .rewatch-section { background:var(--bg2); border-top:1px solid var(--border); text-align:center; padding:6rem 2rem; }
+  .rewatch-stamp { display:inline-block; font-family:var(--font-display); font-size:clamp(1.6rem,4vw,2.8rem); text-transform:uppercase; color:var(--accent); border:3px solid var(--accent); padding:0.6rem 2.2rem; transform:rotate(-2deg); letter-spacing:0.04em; }
+  .rewatch-note { font-size:0.9rem; color:var(--muted); max-width:560px; margin:2rem auto 0; line-height:1.85; }
+
+  footer { padding:4rem 2rem; text-align:center; border-top:1px solid var(--border); }
+  .footer-back { font-family:var(--font-mono); letter-spacing:0.3em; font-size:0.66rem; text-transform:uppercase; color:var(--muted); text-decoration:none; transition:color 0.2s; }
+  .footer-back:hover { color:var(--accent); }
+
+  @keyframes fadeUp { from{opacity:0;transform:translateY(28px)} to{opacity:1;transform:translateY(0)} }
+  .reveal { opacity:0; transform:translateY(38px); transition:opacity 0.7s ease, transform 0.7s ease; }
+  .reveal.visible { opacity:1; transform:translateY(0); }
+</style>
+</head>
+<body>
+<div class="progress-bar" id="progress"></div>
+
+<nav>
+  <a href="index.html" class="nav-back">← All Cuts</a>
+  <div class="nav-score" id="navScore">10</div>
+</nav>
+
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-content">
+    <div class="cut-label">Final Cut No. 7</div>
+    <h1 class="hero-title">Goodfellas</h1>
+    <div class="hero-director">dir. Martin Scorsese</div>
+    <div class="hero-meta">1990 · Crime · 145 min</div>
+    <div class="hero-rule"></div>
+    <div class="scroll-hint">Roll film</div>
+  </div>
+</section>
+
+<div class="verdict-bar">Thirty years of mob life told at the exact speed of the lie that makes it attractive, until the lie runs out of road.</div>
+
+<section class="score-section">
+  <div class="score-inner">
+    <div class="score-display">
+      <div class="score-number">10<span>.0</span></div>
+      <div class="score-label">Out of ten</div>
+    </div>
+    <div>
+      <div class="score-verdict">The Godfather is opera. This is journalism on cocaine, and it's the more honest film about why anyone actually joins.</div>
+      <div class="score-defense">The case for the 10 is simple: it's the most rewatchable serious film ever made, and the rewatchability is the argument. Scorsese makes the life feel so good that you, in your living room, become complicit in wanting it, and then he spends the last hour charging you for the feeling. Pacing, narration, music, editing: every tool is doing seduction and indictment simultaneously. No slack anywhere in 145 minutes.</div>
+    </div>
+  </div>
+</section>
+
+<section class="craft-section">
+  <div class="section">
+    <div class="section-label reveal">The Bench</div>
+    <h2 class="section-title reveal">Craft <em>scorecard</em></h2>
+    <div class="craft-grid reveal">
+      <div class="craft-card">
+        <div class="craft-head"><span class="craft-name">Direction</span><span class="craft-score">9.9</span></div>
+        <div class="craft-meter"><span style="width:99%"></span></div>
+        <div class="craft-note">Scorsese directing the world he grew up watching from a window, with total fluency: whip pans, freeze frames, narration that lies to you, a camera that moves like gossip. It's show-off filmmaking where every flourish is also information.</div>
+      </div>
+      <div class="craft-card">
+        <div class="craft-head"><span class="craft-name">Cinematography</span><span class="craft-score">9.4</span></div>
+        <div class="craft-meter"><span style="width:94%"></span></div>
+        <div class="craft-note">Michael Ballhaus glides where other crime films lurk. The Copacabana oner is the famous one, but the real signature is how the camera pushes in on faces at the exact moment a thought turns dangerous, like it can smell it.</div>
+      </div>
+      <div class="craft-card">
+        <div class="craft-head"><span class="craft-name">Acting</span><span class="craft-score">9.7</span></div>
+        <div class="craft-meter"><span style="width:97%"></span></div>
+        <div class="craft-note">Pesci won the Oscar for a man whose laughter is a loaded weapon. De Niro does career-best quiet work, watching everyone like inventory. Liotta, criminally never even nominated, carries the entire film's seduction and collapse on his narration and that laugh. Lorraine Bracco matches them all from inside the marriage.</div>
+      </div>
+      <div class="craft-card">
+        <div class="craft-head"><span class="craft-name">Writing</span><span class="craft-score">9.6</span></div>
+        <div class="craft-meter"><span style="width:96%"></span></div>
+        <div class="craft-note">Pileggi and Scorsese turn a journalist's book into voiceover scripture. The genius is what the narration doesn't notice: Henry tells you about the good times while the picture shows you a man being buried in lime. The gap between what he says and what you see is the whole movie.</div>
+      </div>
+      <div class="craft-card">
+        <div class="craft-head"><span class="craft-name">Score &amp; Sound</span><span class="craft-score">9.8</span></div>
+        <div class="craft-meter"><span style="width:98%"></span></div>
+        <div class="craft-note">No composer. Three decades of pop chart history deployed as both period clock and moral commentary, ending with the Layla piano coda floating over corpses in garbage trucks and meat lockers. Pop music as funeral mass. Tarantino took notes; everyone did.</div>
+      </div>
+      <div class="craft-card">
+        <div class="craft-head"><span class="craft-name">Editing</span><span class="craft-score">10</span></div>
+        <div class="craft-meter"><span style="width:100%"></span></div>
+        <div class="craft-note">Thelma Schoonmaker's masterpiece. The film covers 30 years and never once feels like it's summarizing, and the May 11, 1980 sequence, helicopters, gravy, cocaine, gun barrels in paper bags, invented a new grammar for paranoia that half of modern cinema still borrows.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-label reveal">Themes</div>
+  <h2 class="section-title reveal">What it's <em>actually</em> about</h2>
+  <div class="body-text reveal">
+    <p>It's not about the mafia. It's about membership. Henry's opening line isn't "I always wanted money," it's "I always wanted to be a gangster," and the film understands those are different hungers. What the life offers is never having to wait in line: the Copacabana shot is the thesis statement, a literal back-door glide past every regular schmuck in New York straight to a table that materializes in front of the stage. The film is honest that this feels incredible. That honesty is why it works where a hundred moralizing crime films don't.</p>
+    <p>Then it shows you the bill. The same loyalty that gets you the table requires you to laugh at Tommy's jokes, dig the holes, and eventually understand that your best friends will kill you the moment you become arithmetic. The last act strips every glamour away until Henry's punishment isn't prison or death. It's normalcy. Egg noodles and ketchup. The worst fate the film can imagine is becoming one of us, the people who wait in line, and Scorsese knows exactly how damning that confession is, of Henry and of the audience that spent two hours wanting what he had.</p>
+  </div>
+</section>
+
+<section class="quote-section">
+  <div class="quote-bg"></div>
+  <div class="quote-text">"As far back as I can remember, I always wanted to be a gangster."</div>
+  <div class="quote-attr">Henry Hill — Goodfellas</div>
+</section>
+
+<section class="section">
+  <div class="section-label reveal">Standout Scenes</div>
+  <h2 class="section-title reveal">The frames that <em>stay</em></h2>
+  <div class="reveal">
+    <div class="scene">
+      <div class="scene-tc">TC 00:23:00</div>
+      <div class="scene-title">"Funny How?"</div>
+      <div class="scene-text">Tommy turns a compliment into a minefield in front of a full table, and for ninety seconds nobody in the room or the theater knows if it's a joke. Pesci improvised the scaffolding from a real incident, and Liotta's flickering grin while he tries to read the table is the best acting-about-acting ever filmed. The scene teaches you the rule of this world: laughter and death sit in the same chair.</div>
+    </div>
+    <div class="scene">
+      <div class="scene-tc">TC 00:31:00</div>
+      <div class="scene-title">The Copacabana</div>
+      <div class="scene-text">One unbroken three-minute take: through the service entrance, down the stairs, through the kitchen, past the line, to a table that doesn't exist until it does, while "Then He Kissed Me" plays and Karen asks what he does for a living. It's the most seductive lie in cinema, shot from inside the lie. Date and audience get seduced in the same motion.</div>
+    </div>
+    <div class="scene">
+      <div class="scene-tc">TC 01:44:00</div>
+      <div class="scene-title">Layla Over the Bodies</div>
+      <div class="scene-text">After the Lufthansa heist, Jimmy starts tidying up, and the film finds the victims one by one, in a pink Cadillac, a garbage truck, a meat freezer, while the piano exit of "Layla" drifts over everything like snowfall. Beauty laid over butchery without irony quotes around it. You feel the wrongness of finding it gorgeous, which is precisely the trap the whole movie has been building.</div>
+    </div>
+    <div class="scene">
+      <div class="scene-tc">TC 02:01:00</div>
+      <div class="scene-title">May 11, 1980</div>
+      <div class="scene-text">One day, cut like a panic attack: helicopters that may or may not exist, a gun delivery, a Pittsburgh connection, and the sauce that needs stirring. Schoonmaker's editing puts you inside a cocaine nervous system without a single subjective effect, just rhythm. It's the sequence every film school plays, and it still outruns its imitators.</div>
+    </div>
+  </div>
+</section>
+
+<section class="section" style="padding-top:0;">
+  <div class="section-label reveal">Writing &amp; Dialogue</div>
+  <h2 class="section-title reveal">On the <em>page</em></h2>
+  <div class="body-text reveal">
+    <p>The script's secret weapon is the double narration. Henry sells you the life; Karen interrupts to tell you what it's like to marry it, and her sections (the gun in the milk box, being turned on by it, the FBI agents at the kitchen table like relatives) keep the film from becoming the very fantasy it depicts. And the dialogue runs on a specific music: threats phrased as hospitality, hospitality phrased as threats. "Now go home and get your shinebox" is a death sentence disguised as an insult, and everyone at the table knows it except the man who said it.</p>
+  </div>
+</section>
+
+<section class="section" style="padding-top:0;">
+  <div class="section-label reveal">The Honest Take</div>
+  <h2 class="section-title reveal">No <em>notes</em> withheld</h2>
+  <div class="body-text reveal">
+    <p>Is it a 10? I went back and forth between this and a 9.8, and the tiebreaker is that I have never once turned it off. Not in twenty channel-surfing encounters. No other film of this seriousness has that pull, and the pull isn't a guilty pleasure, it's the film's actual argument working on you in real time. If I'm nitpicking, the Karen thread thins in the final stretch right when it could hit hardest. The film survives it the way a great album survives a short track nine. Still the best American film about why people choose the wrong life with their eyes open.</p>
+  </div>
+</section>
+
+<section class="rewatch-section">
+  <div class="section-label reveal">Rewatch Verdict</div>
+  <div class="reveal" style="margin-top:1.5rem;">
+    <span class="rewatch-stamp">Rewatch It</span>
+  </div>
+  <div class="rewatch-note reveal">The most rewatchable film on this site, full stop. It plays like an album you know every track of, and the narration means you can drop in anywhere and the movie picks you up like a cab.</div>
+</section>
+
+<footer>
+  <a href="index.html" class="footer-back">← Back to all cuts</a>
+</footer>
+
+<script>
+  window.addEventListener('scroll', () => {
+    const el = document.documentElement;
+    const total = el.scrollHeight - el.clientHeight;
+    document.getElementById('progress').style.width = (total > 0 ? el.scrollTop / total * 100 : 0) + '%';
+    document.getElementById('navScore').classList.toggle('visible', el.scrollTop > window.innerHeight * 0.8);
+  }, { passive:true });
+
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold:0.12 });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+  const meters = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const span = e.target.querySelector('span');
+        span.style.transition = 'width 0.9s ease';
+        requestAnimationFrame(() => { span.style.width = span.dataset.w; });
+      }
+    });
+  }, { threshold:0.5 });
+  document.querySelectorAll('.craft-meter').forEach(m => {
+    const span = m.querySelector('span');
+    span.dataset.w = span.style.width;
+    span.style.width = '0%';
+    meters.observe(m);
+  });
+</script>
+</body>
+</html>
