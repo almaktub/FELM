@@ -8,10 +8,9 @@
 <style>
   *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
   :root {
-    --bg:#0a0908; --bg2:#100f0c; --bg3:#161410;
+    --bg:#0a0908; --bg2:#100f0c;
     --accent:#5fb3a1;
-    --accent-glow:rgba(95,179,161,0.12);
-    --amber:#e8a33d;
+    --accent-glow:rgba(95,179,161,0.15);
     --text:#e9e4d8; --muted:#76705f;
     --border:rgba(255,255,255,0.06);
     --font-display:'Anton',sans-serif;
@@ -19,232 +18,90 @@
     --font-mono:'IBM Plex Mono',monospace;
   }
   html { scroll-behavior:smooth; }
-  body { background:var(--bg); color:var(--text); font-family:var(--font-body); font-weight:300; line-height:1.7; overflow-x:hidden; }
-  body::before, body::after {
-    content:''; position:fixed; top:0; bottom:0; width:22px; z-index:50; pointer-events:none;
-    background-image:radial-gradient(circle at center, rgba(255,255,255,0.07) 4px, transparent 5px);
-    background-size:22px 34px; background-repeat:repeat-y; background-position:center;
-  }
-  body::before { left:0; border-right:1px solid var(--border); }
-  body::after { right:0; border-left:1px solid var(--border); }
-  @media(max-width:700px){ body::before, body::after { display:none; } }
-
+  body { background:var(--bg); color:var(--text); font-family:var(--font-body); font-weight:300; line-height:1.75; overflow-x:hidden; }
   .progress-bar { position:fixed; top:0; left:0; height:2px; background:var(--accent); z-index:200; width:0%; transition:width 0.1s linear; }
-  nav { position:fixed; top:0; left:0; right:0; padding:1.1rem 2.5rem; display:flex; justify-content:space-between; align-items:center; z-index:100; background:linear-gradient(to bottom, rgba(10,9,8,0.92), transparent); }
-  .nav-back { font-family:var(--font-mono); letter-spacing:0.25em; font-size:0.66rem; text-transform:uppercase; color:var(--muted); text-decoration:none; transition:color 0.2s; }
+  nav { position:fixed; top:0; left:0; right:0; padding:1.1rem 2.2rem; display:flex; justify-content:space-between; align-items:center; z-index:100; background:linear-gradient(to bottom, rgba(10,9,8,0.9) 0%, transparent 100%); }
+  .nav-back { font-family:var(--font-mono); letter-spacing:0.25em; font-size:0.64rem; text-transform:uppercase; color:rgba(255,255,255,0.45); text-decoration:none; transition:color 0.2s; }
   .nav-back:hover { color:var(--accent); }
-  .nav-score { font-family:var(--font-display); font-size:1.1rem; color:var(--accent); opacity:0; transition:opacity 0.4s; }
+  .nav-score { font-family:var(--font-display); font-size:1.05rem; color:var(--accent); opacity:0; transition:opacity 0.4s; }
   .nav-score.visible { opacity:1; }
-
-  .hero { min-height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center; position:relative; overflow:hidden; padding:4rem 2rem; text-align:center; }
-  .hero-bg { position:absolute; inset:0; background:radial-gradient(ellipse 75% 55% at 50% 45%, var(--accent-glow) 0%, transparent 68%), var(--bg); z-index:0; }
-  .hero-content { position:relative; z-index:1; }
-  .cut-label { font-family:var(--font-mono); letter-spacing:0.4em; font-size:0.66rem; color:var(--accent); text-transform:uppercase; margin-bottom:1.8rem; opacity:0; animation:fadeUp 0.8s ease 0.2s forwards; }
-  .hero-title { font-family:var(--font-display); font-size:clamp(2.8rem,11vw,9.5rem); line-height:0.95; letter-spacing:0.01em; text-transform:uppercase; color:var(--text); opacity:0; animation:fadeUp 0.8s ease 0.4s forwards; max-width:1000px; }
-  .hero-director { font-family:var(--font-mono); font-style:italic; font-size:clamp(0.95rem,2.5vw,1.4rem); color:var(--accent); margin-top:1rem; opacity:0; animation:fadeUp 0.8s ease 0.6s forwards; }
-  .hero-meta { font-family:var(--font-mono); letter-spacing:0.3em; font-size:0.74rem; color:var(--muted); margin-top:1.5rem; text-transform:uppercase; opacity:0; animation:fadeUp 0.8s ease 0.8s forwards; }
-  .hero-rule { width:1px; height:70px; background:linear-gradient(to bottom, var(--accent), transparent); margin:3rem auto 0; opacity:0; animation:fadeUp 0.8s ease 1s forwards; }
-  .scroll-hint { font-family:var(--font-mono); font-size:0.62rem; letter-spacing:0.35em; color:var(--muted); text-transform:uppercase; margin-top:0.8rem; opacity:0; animation:fadeUp 0.8s ease 1.2s forwards; }
-
-  .verdict-bar { background:var(--accent); padding:1.1rem 2rem; text-align:center; font-size:0.92rem; color:rgba(0,0,0,0.85); font-weight:500; line-height:1.5; }
-
-  .score-section { background:var(--bg2); border-top:1px solid var(--border); border-bottom:1px solid var(--border); }
-  .score-inner { max-width:920px; margin:0 auto; padding:6rem 2rem; display:grid; grid-template-columns:1fr 1.5fr; gap:5rem; align-items:center; }
-  @media(max-width:640px){ .score-inner{grid-template-columns:1fr;gap:2.5rem;} }
-  .score-display { text-align:center; }
-  .score-number { font-family:var(--font-display); font-size:clamp(5rem,15vw,10rem); line-height:1; color:var(--text); }
+  .hero { position:relative; height:100vh; min-height:560px; overflow:hidden; display:flex; align-items:flex-end; }
+  .hero-img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center; }
+  .hero-fallback { position:absolute; inset:0; background:radial-gradient(ellipse 80% 60% at 50% 40%, var(--accent-glow), var(--bg) 70%); }
+  .hero-overlay { position:absolute; inset:0; background:linear-gradient(to top, rgba(10,9,8,0.96) 0%, rgba(10,9,8,0.45) 45%, rgba(10,9,8,0.1) 100%); }
+  .hero-content { position:relative; z-index:1; width:100%; padding:0 2.4rem 3.5rem; }
+  .cut-label { font-family:var(--font-mono); letter-spacing:0.4em; font-size:0.62rem; color:var(--accent); text-transform:uppercase; margin-bottom:1rem; opacity:0; animation:fadeUp 0.7s ease 0.2s forwards; }
+  .hero-title { font-family:var(--font-display); font-size:clamp(2.4rem,8vw,7.5rem); line-height:0.9; text-transform:uppercase; color:var(--text); opacity:0; animation:fadeUp 0.7s ease 0.4s forwards; max-width:900px; }
+  .hero-credits { font-family:var(--font-mono); font-size:0.78rem; color:rgba(255,255,255,0.38); letter-spacing:0.2em; text-transform:uppercase; margin-top:1.1rem; opacity:0; animation:fadeUp 0.7s ease 0.6s forwards; }
+  .review-section { max-width:1020px; margin:0 auto; padding:6rem 2.4rem; display:grid; grid-template-columns:180px 1fr; gap:5rem; align-items:start; }
+  @media(max-width:700px){ .review-section { grid-template-columns:1fr; gap:2.5rem; padding:4rem 1.6rem; } }
+  .score-col { position:sticky; top:5rem; }
+  .score-number { font-family:var(--font-display); font-size:clamp(4rem,10vw,7.5rem); line-height:1; color:var(--text); }
   .score-number span { color:var(--accent); }
-  .score-label { font-family:var(--font-mono); letter-spacing:0.35em; font-size:0.68rem; text-transform:uppercase; color:var(--muted); margin-top:0.4rem; }
-  .score-verdict { font-family:var(--font-mono); font-style:italic; font-size:1.15rem; line-height:1.6; margin-bottom:1.5rem; color:var(--text); }
-  .score-defense { font-size:0.88rem; color:var(--muted); line-height:1.85; }
-
-  .section { max-width:920px; margin:0 auto; padding:6rem 2rem; }
-  .section-label { font-family:var(--font-mono); letter-spacing:0.4em; font-size:0.64rem; color:var(--accent); text-transform:uppercase; margin-bottom:1.4rem; }
-  .section-title { font-family:var(--font-display); font-size:clamp(1.8rem,4.5vw,3.2rem); line-height:1.1; text-transform:uppercase; margin-bottom:2.5rem; }
-  .section-title em { font-style:normal; color:var(--accent); }
-  .body-text p { margin-bottom:1.4rem; font-size:0.95rem; color:var(--text); }
-  .body-text p:last-child { margin-bottom:0; }
-
-  .craft-section { background:var(--bg2); border-top:1px solid var(--border); border-bottom:1px solid var(--border); }
-  .craft-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:1.5px; background:var(--border); border:1px solid var(--border); }
-  .craft-card { background:var(--bg2); padding:2.2rem 1.8rem; position:relative; overflow:hidden; transition:background 0.2s; }
-  .craft-card::before { content:''; position:absolute; top:0; left:0; width:3px; height:0; background:var(--accent); transition:height 0.3s; }
-  .craft-card:hover::before { height:100%; }
-  .craft-card:hover { background:var(--bg3); }
-  .craft-head { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:0.9rem; }
-  .craft-name { font-family:var(--font-mono); letter-spacing:0.25em; font-size:0.66rem; text-transform:uppercase; color:var(--text); }
-  .craft-score { font-family:var(--font-display); font-size:1.5rem; color:var(--accent); }
-  .craft-meter { height:3px; background:rgba(255,255,255,0.07); margin-bottom:1rem; }
-  .craft-meter span { display:block; height:100%; background:var(--accent); }
-  .craft-note { font-size:0.82rem; color:var(--muted); line-height:1.75; }
-
-  .quote-section { padding:7rem 2rem; text-align:center; position:relative; overflow:hidden; }
-  .quote-bg { position:absolute; inset:0; background:radial-gradient(ellipse 55% 55% at 50% 50%, var(--accent-glow) 0%, transparent 70%); opacity:0.5; }
-  .quote-text { font-family:var(--font-mono); font-style:italic; font-size:clamp(1.2rem,3vw,2rem); line-height:1.5; max-width:680px; margin:0 auto; position:relative; z-index:1; }
-  .quote-attr { font-family:var(--font-mono); letter-spacing:0.3em; font-size:0.62rem; text-transform:uppercase; color:var(--muted); margin-top:1.5rem; position:relative; z-index:1; }
-
-  .scene { border-left:3px solid var(--accent); background:var(--bg2); padding:2rem 2.2rem; margin-bottom:1.5rem; }
-  .scene-tc { font-family:var(--font-mono); font-size:0.64rem; letter-spacing:0.25em; color:var(--accent); text-transform:uppercase; margin-bottom:0.5rem; }
-  .scene-title { font-family:var(--font-display); font-size:1.3rem; text-transform:uppercase; margin-bottom:0.8rem; }
-  .scene-text { font-size:0.88rem; color:var(--muted); line-height:1.85; }
-
-  .rewatch-section { background:var(--bg2); border-top:1px solid var(--border); text-align:center; padding:6rem 2rem; }
-  .rewatch-stamp { display:inline-block; font-family:var(--font-display); font-size:clamp(1.6rem,4vw,2.8rem); text-transform:uppercase; color:var(--accent); border:3px solid var(--accent); padding:0.6rem 2.2rem; transform:rotate(-2deg); letter-spacing:0.04em; }
-  .rewatch-note { font-size:0.9rem; color:var(--muted); max-width:560px; margin:2rem auto 0; line-height:1.85; }
-
-  footer { padding:4rem 2rem; text-align:center; border-top:1px solid var(--border); }
-  .footer-back { font-family:var(--font-mono); letter-spacing:0.3em; font-size:0.66rem; text-transform:uppercase; color:var(--muted); text-decoration:none; transition:color 0.2s; }
+  .score-denom { font-family:var(--font-mono); font-size:0.62rem; letter-spacing:0.3em; text-transform:uppercase; color:var(--muted); margin-top:0.3rem; }
+  .score-verdict { font-family:var(--font-mono); font-style:italic; font-size:0.82rem; color:var(--accent); line-height:1.6; margin-top:1.2rem; padding-top:1.2rem; border-top:1px solid var(--border); }
+  @media(max-width:700px){ .score-col { position:static; display:flex; align-items:baseline; gap:1.2rem; flex-wrap:wrap; } .score-verdict { border-top:none; margin-top:0; padding-top:0; } }
+  .review-text p { font-size:0.97rem; color:var(--text); line-height:1.85; margin-bottom:1.5rem; }
+  .review-text p:last-child { margin-bottom:0; }
+  .divider { max-width:1020px; margin:0 auto; padding:0 2.4rem; }
+  .divider hr { border:none; border-top:1px solid var(--border); }
+  .quote-section { padding:6rem 2.4rem; text-align:center; }
+  .quote-text { font-family:var(--font-mono); font-style:italic; font-size:clamp(1.1rem,2.8vw,1.75rem); line-height:1.5; max-width:680px; margin:0 auto; color:var(--text); }
+  .quote-attr { font-family:var(--font-mono); letter-spacing:0.3em; font-size:0.6rem; text-transform:uppercase; color:var(--muted); margin-top:1.4rem; }
+  .rewatch-section { background:var(--bg2); border-top:1px solid var(--border); border-bottom:1px solid var(--border); padding:5rem 2.4rem; text-align:center; }
+  .rewatch-label { font-family:var(--font-mono); letter-spacing:0.4em; font-size:0.62rem; text-transform:uppercase; color:var(--muted); margin-bottom:1.8rem; }
+  .rewatch-stamp { display:inline-block; font-family:var(--font-display); font-size:clamp(1.5rem,3.5vw,2.6rem); text-transform:uppercase; color:var(--accent); border:2px solid var(--accent); padding:0.5rem 2rem; transform:rotate(-1.5deg); letter-spacing:0.04em; }
+  .rewatch-note { font-size:0.88rem; color:var(--muted); max-width:520px; margin:1.8rem auto 0; line-height:1.85; font-family:var(--font-mono); font-style:italic; }
+  footer { padding:3.5rem 2.4rem; text-align:center; }
+  .footer-back { font-family:var(--font-mono); letter-spacing:0.3em; font-size:0.62rem; text-transform:uppercase; color:var(--muted); text-decoration:none; transition:color 0.2s; }
   .footer-back:hover { color:var(--accent); }
-
-  @keyframes fadeUp { from{opacity:0;transform:translateY(28px)} to{opacity:1;transform:translateY(0)} }
-  .reveal { opacity:0; transform:translateY(38px); transition:opacity 0.7s ease, transform 0.7s ease; }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(22px)} to{opacity:1;transform:translateY(0)} }
+  .reveal { opacity:0; transform:translateY(30px); transition:opacity 0.65s ease, transform 0.65s ease; }
   .reveal.visible { opacity:1; transform:translateY(0); }
 </style>
 </head>
 <body>
 <div class="progress-bar" id="progress"></div>
-
 <nav>
   <a href="index.html" class="nav-back">← All Cuts</a>
   <div class="nav-score" id="navScore">10</div>
 </nav>
 
 <section class="hero">
-  <div class="hero-bg"></div>
+  <img src="img/spirited-away.jpg" alt="Spirited Away" class="hero-img" onerror="this.style.opacity=0">
+  <div class="hero-fallback"></div>
+  <div class="hero-overlay"></div>
   <div class="hero-content">
     <div class="cut-label">Final Cut No. 4</div>
-    <h1 class="hero-title">Spirited<br>Away</h1>
-    <div class="hero-director">dir. Hayao Miyazaki</div>
-    <div class="hero-meta">2001 · Animation · 125 min</div>
-    <div class="hero-rule"></div>
-    <div class="scroll-hint">Roll film</div>
+    <h1 class="hero-title">Spirited Away</h1>
+    <div class="hero-credits">dir. Hayao Miyazaki &nbsp;·&nbsp; 2001 &nbsp;·&nbsp; Animation &nbsp;·&nbsp; 125 min</div>
   </div>
 </section>
 
-<div class="verdict-bar">A ten-year-old's name is the only thing standing between her and disappearing, and the movie treats that like the highest possible stakes. It's right.</div>
-
-<section class="score-section">
-  <div class="score-inner">
-    <div class="score-display">
-      <div class="score-number">10<span>.0</span></div>
-      <div class="score-label">Out of ten</div>
-    </div>
-    <div>
-      <div class="score-verdict">The rare 10 where the mechanics resist explanation. It runs on dream logic that never once breaks its own spell, and no one else has ever pulled that off at this scale.</div>
-      <div class="score-defense">The case against is always the same: the plot wanders, things happen without setup, the rules are never stated. All true, and all of it is the achievement. It plays by the logic of an actual dream and stays coherent anyway, because the emotional throughline (a child learning to hold onto herself) never wavers for a frame. Films with airtight plots are common. Films with airtight feelings are not.</div>
-    </div>
+<section class="review-section">
+  <div class="score-col reveal">
+    <div class="score-number">10<span>.0</span></div>
+    <div class="score-denom">Out of ten</div>
+    <div class="score-verdict">The best argument that animation is not a genre but a medium, with things to say that live action cannot.</div>
+  </div>
+  <div class="review-text reveal">
+    <p>The spirit world runs on labor and names. Yubaba steals Chihiro's name because a name is how you remember who you are, and forgetting who you are is how the world keeps you working. The bathhouse is not a metaphor dressed up as fantasy: it's a fully realized economy, with shift differentials and management politics and a girl who has to prove she can work before anyone will acknowledge she exists. Miyazaki's genius is that none of this is explained. Chihiro learns the rules the way a ten-year-old would: by watching, making mistakes, and figuring it out. The film respects her intelligence and ours by never stopping to explain itself.</p>
+    <p>There is no villain. Yubaba is a businesswoman protecting her business. The stink spirit is a river god buried in garbage. No-Face is loneliness with a wallet, wanting company and having only money to offer it. Every creature in the spirit world has a comprehensible interiority, which is more than most films with human characters manage. The train scene — Chihiro riding through a flooded world to find someone she owes a kindness to — has no plot function. It's just beautiful and a little mournful, and Miyazaki trusts that beauty and mourning are enough reason to include something.</p>
+    <p>The film's lesson is competence. Chihiro doesn't save anyone through cleverness or luck or love, exactly. She saves them by showing up and doing the work. She scrubs the stink spirit. She keeps her deal with Yubaba. She remembers Haku's real name because she remembers everything, even things she was supposed to forget. The ending gives back her parents and her name, but it doesn't give her back her childhood. She's already somewhere past it, and Miyazaki lets that be both sad and correct.</p>
   </div>
 </section>
 
-<section class="craft-section">
-  <div class="section">
-    <div class="section-label reveal">The Bench</div>
-    <h2 class="section-title reveal">Craft <em>scorecard</em></h2>
-    <div class="craft-grid reveal">
-      <div class="craft-card">
-        <div class="craft-head"><span class="craft-name">Direction</span><span class="craft-score">10</span></div>
-        <div class="craft-meter"><span style="width:100%"></span></div>
-        <div class="craft-note">Miyazaki famously started without a finished script, drawing the story forward board by board, and somehow that produced his most complete film. He gives weight to things no one else would animate: shoes being tapped on, a sandwich eaten while crying. The quiet between events ("ma," he calls it) is the masterstroke.</div>
-      </div>
-      <div class="craft-card">
-        <div class="craft-head"><span class="craft-name">Cinematography</span><span class="craft-score">9.9</span></div>
-        <div class="craft-meter"><span style="width:99%"></span></div>
-        <div class="craft-note">Hand-drawn composition and color doing the work a camera crew does elsewhere. The bathhouse glows like a furnace of lanterns, the spirit world gets more saturated as the human world fades, and the flooded railway, sky and sea fused into one plane, is one of the most beautiful images in any medium.</div>
-      </div>
-      <div class="craft-card">
-        <div class="craft-head"><span class="craft-name">Acting</span><span class="craft-score">9.5</span></div>
-        <div class="craft-meter"><span style="width:95%"></span></div>
-        <div class="craft-note">For animation this means character acting in the drawings, and it's flawless: Chihiro's body language matures across the film from noodle-limbed sulking to planted, certain stillness. Rumi Hiiragi voices her without a trace of precociousness. Even the soot sprites have legible inner lives.</div>
-      </div>
-      <div class="craft-card">
-        <div class="craft-head"><span class="craft-name">Writing</span><span class="craft-score">9.6</span></div>
-        <div class="craft-meter"><span style="width:96%"></span></div>
-        <div class="craft-note">No villain, which almost no screenwriter has the nerve to attempt. Yubaba is an employer, No-Face is loneliness with a body, and every conflict resolves through work, manners, or memory instead of victory. The script trusts a child audience with ambiguity that most adult films won't risk.</div>
-      </div>
-      <div class="craft-card">
-        <div class="craft-head"><span class="craft-name">Score &amp; Sound</span><span class="craft-score">10</span></div>
-        <div class="craft-meter"><span style="width:100%"></span></div>
-        <div class="craft-note">Joe Hisaishi's "One Summer's Day" might be the single most emotionally efficient piece of film music ever written: six notes in and something in your chest gives way. The score knows when to vanish too, leaving just water, wind, and train rhythm.</div>
-      </div>
-      <div class="craft-card">
-        <div class="craft-head"><span class="craft-name">Editing</span><span class="craft-score">9.5</span></div>
-        <div class="craft-meter"><span style="width:95%"></span></div>
-        <div class="craft-note">The pacing breaks every Western rule: the climax is quiet, the action peak happens early, and the film's most important stretch is a silent train ride where nothing happens. Every rule it breaks, it replaces with rhythm. Nothing drags, nothing rushes.</div>
-      </div>
-    </div>
-  </div>
-</section>
+<div class="divider reveal"><hr></div>
 
-<section class="section">
-  <div class="section-label reveal">Themes</div>
-  <h2 class="section-title reveal">What it's <em>actually</em> about</h2>
-  <div class="body-text reveal">
-    <p>Names are the currency of the spirit world, and that's the film's deepest idea. Yubaba doesn't imprison workers with chains; she takes their names and lets them forget themselves into servitude. Haku has been a river spirit so long unnamed that he can't find his way home. Chihiro survives because she keeps one syllable of herself hidden. Anyone who has moved between countries or languages knows exactly what this is: the quiet danger of becoming whatever the new place calls you.</p>
-    <p>It's also a film about appetite. The parents eat themselves into pigs within ten minutes. No-Face discovers that the bathhouse will love anything that produces gold, so he produces gold and swallows everything that approaches, getting hungrier with every meal. The film's answer to consumption isn't a lecture, it's Chihiro, the one person in the building who wants nothing from anyone, repeatedly refusing payment. Generosity as immunity.</p>
-    <p>And underneath everything: work. Chihiro saves herself not through destiny or power but by demanding a job and doing it well, scrubbing the floor, bathing the stink spirit nobody else will touch. Miyazaki's radical message to children is that competence is a form of magic, maybe the only reliable one.</p>
-  </div>
-</section>
-
-<section class="quote-section">
-  <div class="quote-bg"></div>
+<section class="quote-section reveal">
   <div class="quote-text">"Once you've met someone, you never really forget them. It just takes a while for your memories to return."</div>
   <div class="quote-attr">Zeniba — Spirited Away</div>
 </section>
 
-<section class="section">
-  <div class="section-label reveal">Standout Scenes</div>
-  <h2 class="section-title reveal">The frames that <em>stay</em></h2>
-  <div class="reveal">
-    <div class="scene">
-      <div class="scene-tc">TC 00:10:00</div>
-      <div class="scene-title">The Parents Become Pigs</div>
-      <div class="scene-text">The single scariest scene in any children's film, and it's just two adults eating. The wet sound design, the unhurried camera, the moment Chihiro pulls her father's shoulder and a pig's face turns around. No transformation sequence, no music sting. Just gone. It teaches you in one cut that this world doesn't negotiate.</div>
-    </div>
-    <div class="scene">
-      <div class="scene-tc">TC 00:55:00</div>
-      <div class="scene-title">The Stink Spirit</div>
-      <div class="scene-text">A reeking mountain of sludge no one will serve, assigned to the new girl as a hazing. Chihiro finds the thorn in its side, the whole bathhouse pulls together, and out comes an ancient river god, polluted into unrecognizability, leaving behind a heap of dumped bicycles and trash. An environmental thesis delivered as a triumphant set piece, and the film never says the word pollution once.</div>
-    </div>
-    <div class="scene">
-      <div class="scene-tc">TC 01:20:00</div>
-      <div class="scene-title">No-Face Comes Apart</div>
-      <div class="scene-text">The shy spirit Chihiro let in from the rain becomes the bathhouse's best customer and worst nightmare, swallowing staff and spraying gold, swelling with every transaction. It's the film's horror movie stretch and its sharpest satire at once: an institution happily feeding the thing that's eating it, as long as the gold keeps coming.</div>
-    </div>
-    <div class="scene">
-      <div class="scene-tc">TC 01:42:00</div>
-      <div class="scene-title">The Train Ride</div>
-      <div class="scene-text">Chihiro, No-Face, and two transformed companions ride a half-submerged train to nowhere, surrounded by translucent passengers, while Hisaishi's "The Sixth Station" plays. Nothing happens. It's the emotional summit of the film anyway, the moment the adventure goes quiet and becomes memory while you're still inside it. Nobody else would have the nerve to put this scene here. It's the best scene Miyazaki ever made.</div>
-    </div>
-    <div class="scene">
-      <div class="scene-tc">TC 01:55:00</div>
-      <div class="scene-title">"Your Name Is Kohaku River"</div>
-      <div class="scene-text">Falling through open sky, Chihiro remembers drowning as a small child and being carried to shore by a river. She returns Haku's name to him and his dragon scales burst away like shedding glass. The film's whole theology in one moment: remembering someone truly is the act that frees them.</div>
-    </div>
-  </div>
-</section>
-
-<section class="section" style="padding-top:0;">
-  <div class="section-label reveal">Writing &amp; Dialogue</div>
-  <h2 class="section-title reveal">On the <em>page</em></h2>
-  <div class="body-text reveal">
-    <p>The dialogue is functional on purpose; the writing lives in the rules of the world, which are never explained and always consistent. Eat the food, belong to the place. Lose your name, lose yourself. Help freely, and help returns from strange directions. Zeniba's line about memory is the closest thing to a stated thesis, and even that arrives as grandmotherly small talk over tea. Compare it to the Western fantasy of the same era, drowning in prophecy exposition, and the restraint looks even more radical.</p>
-  </div>
-</section>
-
-<section class="section" style="padding-top:0;">
-  <div class="section-label reveal">The Honest Take</div>
-  <h2 class="section-title reveal">No <em>notes</em> withheld</h2>
-  <div class="body-text reveal">
-    <p>I've tried to find the flaw and the candidates all dissolve under inspection. The wandering middle is the dream working. The unexplained rules are the world's integrity. The quiet ending, no battle, no confrontation, just a guess about pigs and a walk back through a tunnel, is the bravest choice in the film. It won the Oscar, outgrossed Titanic in Japan, and still feels handmade and private, like something one person dreamed and was somehow able to show you. Animation has produced other masterpieces. It has never produced another one of these.</p>
-  </div>
-</section>
-
 <section class="rewatch-section">
-  <div class="section-label reveal">Rewatch Verdict</div>
-  <div class="reveal" style="margin-top:1.5rem;">
-    <span class="rewatch-stamp">Rewatch It</span>
-  </div>
-  <div class="rewatch-note reveal">It changes with you. As a kid it's an adventure, in your twenties it's about work, later it's about everything you've forgotten and the people who carried you to shore. The film stays still; you move past it at different angles.</div>
+  <div class="rewatch-label reveal">Rewatch verdict</div>
+  <div class="reveal"><span class="rewatch-stamp">Rewatch It</span></div>
+  <div class="rewatch-note reveal">Works differently at every age — when you're young it's an adventure; later it's a film about what work costs and what it earns.</div>
 </section>
 
 <footer>
@@ -256,29 +113,12 @@
     const el = document.documentElement;
     const total = el.scrollHeight - el.clientHeight;
     document.getElementById('progress').style.width = (total > 0 ? el.scrollTop / total * 100 : 0) + '%';
-    document.getElementById('navScore').classList.toggle('visible', el.scrollTop > window.innerHeight * 0.8);
+    document.getElementById('navScore').classList.toggle('visible', el.scrollTop > window.innerHeight * 0.6);
   }, { passive:true });
-
   const io = new IntersectionObserver(entries => {
     entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
-  }, { threshold:0.12 });
+  }, { threshold:0.1 });
   document.querySelectorAll('.reveal').forEach(el => io.observe(el));
-
-  const meters = new IntersectionObserver(entries => {
-    entries.forEach(e => {
-      if (e.isIntersecting) {
-        const span = e.target.querySelector('span');
-        span.style.transition = 'width 0.9s ease';
-        requestAnimationFrame(() => { span.style.width = span.dataset.w; });
-      }
-    });
-  }, { threshold:0.5 });
-  document.querySelectorAll('.craft-meter').forEach(m => {
-    const span = m.querySelector('span');
-    span.dataset.w = span.style.width;
-    span.style.width = '0%';
-    meters.observe(m);
-  });
 </script>
 </body>
 </html>

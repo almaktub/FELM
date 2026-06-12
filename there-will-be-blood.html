@@ -8,10 +8,9 @@
 <style>
   *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
   :root {
-    --bg:#0a0908; --bg2:#100f0c; --bg3:#161410;
+    --bg:#0a0908; --bg2:#100f0c;
     --accent:#bf5b27;
-    --accent-glow:rgba(191,91,39,0.12);
-    --amber:#e8a33d;
+    --accent-glow:rgba(191,91,39,0.15);
     --text:#e9e4d8; --muted:#76705f;
     --border:rgba(255,255,255,0.06);
     --font-display:'Anton',sans-serif;
@@ -19,227 +18,90 @@
     --font-mono:'IBM Plex Mono',monospace;
   }
   html { scroll-behavior:smooth; }
-  body { background:var(--bg); color:var(--text); font-family:var(--font-body); font-weight:300; line-height:1.7; overflow-x:hidden; }
-  body::before, body::after {
-    content:''; position:fixed; top:0; bottom:0; width:22px; z-index:50; pointer-events:none;
-    background-image:radial-gradient(circle at center, rgba(255,255,255,0.07) 4px, transparent 5px);
-    background-size:22px 34px; background-repeat:repeat-y; background-position:center;
-  }
-  body::before { left:0; border-right:1px solid var(--border); }
-  body::after { right:0; border-left:1px solid var(--border); }
-  @media(max-width:700px){ body::before, body::after { display:none; } }
-
+  body { background:var(--bg); color:var(--text); font-family:var(--font-body); font-weight:300; line-height:1.75; overflow-x:hidden; }
   .progress-bar { position:fixed; top:0; left:0; height:2px; background:var(--accent); z-index:200; width:0%; transition:width 0.1s linear; }
-  nav { position:fixed; top:0; left:0; right:0; padding:1.1rem 2.5rem; display:flex; justify-content:space-between; align-items:center; z-index:100; background:linear-gradient(to bottom, rgba(10,9,8,0.92), transparent); }
-  .nav-back { font-family:var(--font-mono); letter-spacing:0.25em; font-size:0.66rem; text-transform:uppercase; color:var(--muted); text-decoration:none; transition:color 0.2s; }
+  nav { position:fixed; top:0; left:0; right:0; padding:1.1rem 2.2rem; display:flex; justify-content:space-between; align-items:center; z-index:100; background:linear-gradient(to bottom, rgba(10,9,8,0.9) 0%, transparent 100%); }
+  .nav-back { font-family:var(--font-mono); letter-spacing:0.25em; font-size:0.64rem; text-transform:uppercase; color:rgba(255,255,255,0.45); text-decoration:none; transition:color 0.2s; }
   .nav-back:hover { color:var(--accent); }
-  .nav-score { font-family:var(--font-display); font-size:1.1rem; color:var(--accent); opacity:0; transition:opacity 0.4s; }
+  .nav-score { font-family:var(--font-display); font-size:1.05rem; color:var(--accent); opacity:0; transition:opacity 0.4s; }
   .nav-score.visible { opacity:1; }
-
-  .hero { min-height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center; position:relative; overflow:hidden; padding:4rem 2rem; text-align:center; }
-  .hero-bg { position:absolute; inset:0; background:radial-gradient(ellipse 75% 55% at 50% 45%, var(--accent-glow) 0%, transparent 68%), var(--bg); z-index:0; }
-  .hero-content { position:relative; z-index:1; }
-  .cut-label { font-family:var(--font-mono); letter-spacing:0.4em; font-size:0.66rem; color:var(--accent); text-transform:uppercase; margin-bottom:1.8rem; opacity:0; animation:fadeUp 0.8s ease 0.2s forwards; }
-  .hero-title { font-family:var(--font-display); font-size:clamp(2.6rem,10vw,8.5rem); line-height:0.95; letter-spacing:0.01em; text-transform:uppercase; color:var(--text); opacity:0; animation:fadeUp 0.8s ease 0.4s forwards; max-width:1000px; }
-  .hero-director { font-family:var(--font-mono); font-style:italic; font-size:clamp(0.95rem,2.5vw,1.4rem); color:var(--accent); margin-top:1rem; opacity:0; animation:fadeUp 0.8s ease 0.6s forwards; }
-  .hero-meta { font-family:var(--font-mono); letter-spacing:0.3em; font-size:0.74rem; color:var(--muted); margin-top:1.5rem; text-transform:uppercase; opacity:0; animation:fadeUp 0.8s ease 0.8s forwards; }
-  .hero-rule { width:1px; height:70px; background:linear-gradient(to bottom, var(--accent), transparent); margin:3rem auto 0; opacity:0; animation:fadeUp 0.8s ease 1s forwards; }
-  .scroll-hint { font-family:var(--font-mono); font-size:0.62rem; letter-spacing:0.35em; color:var(--muted); text-transform:uppercase; margin-top:0.8rem; opacity:0; animation:fadeUp 0.8s ease 1.2s forwards; }
-
-  .verdict-bar { background:var(--accent); padding:1.1rem 2rem; text-align:center; font-size:0.92rem; color:rgba(0,0,0,0.85); font-weight:500; line-height:1.5; }
-
-  .score-section { background:var(--bg2); border-top:1px solid var(--border); border-bottom:1px solid var(--border); }
-  .score-inner { max-width:920px; margin:0 auto; padding:6rem 2rem; display:grid; grid-template-columns:1fr 1.5fr; gap:5rem; align-items:center; }
-  @media(max-width:640px){ .score-inner{grid-template-columns:1fr;gap:2.5rem;} }
-  .score-display { text-align:center; }
-  .score-number { font-family:var(--font-display); font-size:clamp(5rem,15vw,10rem); line-height:1; color:var(--text); }
+  .hero { position:relative; height:100vh; min-height:560px; overflow:hidden; display:flex; align-items:flex-end; }
+  .hero-img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center; }
+  .hero-fallback { position:absolute; inset:0; background:radial-gradient(ellipse 80% 60% at 50% 40%, var(--accent-glow), var(--bg) 70%); }
+  .hero-overlay { position:absolute; inset:0; background:linear-gradient(to top, rgba(10,9,8,0.96) 0%, rgba(10,9,8,0.45) 45%, rgba(10,9,8,0.1) 100%); }
+  .hero-content { position:relative; z-index:1; width:100%; padding:0 2.4rem 3.5rem; }
+  .cut-label { font-family:var(--font-mono); letter-spacing:0.4em; font-size:0.62rem; color:var(--accent); text-transform:uppercase; margin-bottom:1rem; opacity:0; animation:fadeUp 0.7s ease 0.2s forwards; }
+  .hero-title { font-family:var(--font-display); font-size:clamp(2.4rem,8vw,7rem); line-height:0.9; text-transform:uppercase; color:var(--text); opacity:0; animation:fadeUp 0.7s ease 0.4s forwards; max-width:900px; }
+  .hero-credits { font-family:var(--font-mono); font-size:0.78rem; color:rgba(255,255,255,0.38); letter-spacing:0.2em; text-transform:uppercase; margin-top:1.1rem; opacity:0; animation:fadeUp 0.7s ease 0.6s forwards; }
+  .review-section { max-width:1020px; margin:0 auto; padding:6rem 2.4rem; display:grid; grid-template-columns:180px 1fr; gap:5rem; align-items:start; }
+  @media(max-width:700px){ .review-section { grid-template-columns:1fr; gap:2.5rem; padding:4rem 1.6rem; } }
+  .score-col { position:sticky; top:5rem; }
+  .score-number { font-family:var(--font-display); font-size:clamp(4rem,10vw,7.5rem); line-height:1; color:var(--text); }
   .score-number span { color:var(--accent); }
-  .score-label { font-family:var(--font-mono); letter-spacing:0.35em; font-size:0.68rem; text-transform:uppercase; color:var(--muted); margin-top:0.4rem; }
-  .score-verdict { font-family:var(--font-mono); font-style:italic; font-size:1.15rem; line-height:1.6; margin-bottom:1.5rem; color:var(--text); }
-  .score-defense { font-size:0.88rem; color:var(--muted); line-height:1.85; }
-
-  .section { max-width:920px; margin:0 auto; padding:6rem 2rem; }
-  .section-label { font-family:var(--font-mono); letter-spacing:0.4em; font-size:0.64rem; color:var(--accent); text-transform:uppercase; margin-bottom:1.4rem; }
-  .section-title { font-family:var(--font-display); font-size:clamp(1.8rem,4.5vw,3.2rem); line-height:1.1; text-transform:uppercase; margin-bottom:2.5rem; }
-  .section-title em { font-style:normal; color:var(--accent); }
-  .body-text p { margin-bottom:1.4rem; font-size:0.95rem; color:var(--text); }
-  .body-text p:last-child { margin-bottom:0; }
-
-  .craft-section { background:var(--bg2); border-top:1px solid var(--border); border-bottom:1px solid var(--border); }
-  .craft-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:1.5px; background:var(--border); border:1px solid var(--border); }
-  .craft-card { background:var(--bg2); padding:2.2rem 1.8rem; position:relative; overflow:hidden; transition:background 0.2s; }
-  .craft-card::before { content:''; position:absolute; top:0; left:0; width:3px; height:0; background:var(--accent); transition:height 0.3s; }
-  .craft-card:hover::before { height:100%; }
-  .craft-card:hover { background:var(--bg3); }
-  .craft-head { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:0.9rem; }
-  .craft-name { font-family:var(--font-mono); letter-spacing:0.25em; font-size:0.66rem; text-transform:uppercase; color:var(--text); }
-  .craft-score { font-family:var(--font-display); font-size:1.5rem; color:var(--accent); }
-  .craft-meter { height:3px; background:rgba(255,255,255,0.07); margin-bottom:1rem; }
-  .craft-meter span { display:block; height:100%; background:var(--accent); }
-  .craft-note { font-size:0.82rem; color:var(--muted); line-height:1.75; }
-
-  .quote-section { padding:7rem 2rem; text-align:center; position:relative; overflow:hidden; }
-  .quote-bg { position:absolute; inset:0; background:radial-gradient(ellipse 55% 55% at 50% 50%, var(--accent-glow) 0%, transparent 70%); opacity:0.5; }
-  .quote-text { font-family:var(--font-mono); font-style:italic; font-size:clamp(1.2rem,3vw,2rem); line-height:1.5; max-width:680px; margin:0 auto; position:relative; z-index:1; }
-  .quote-attr { font-family:var(--font-mono); letter-spacing:0.3em; font-size:0.62rem; text-transform:uppercase; color:var(--muted); margin-top:1.5rem; position:relative; z-index:1; }
-
-  .scene { border-left:3px solid var(--accent); background:var(--bg2); padding:2rem 2.2rem; margin-bottom:1.5rem; }
-  .scene-tc { font-family:var(--font-mono); font-size:0.64rem; letter-spacing:0.25em; color:var(--accent); text-transform:uppercase; margin-bottom:0.5rem; }
-  .scene-title { font-family:var(--font-display); font-size:1.3rem; text-transform:uppercase; margin-bottom:0.8rem; }
-  .scene-text { font-size:0.88rem; color:var(--muted); line-height:1.85; }
-
-  .rewatch-section { background:var(--bg2); border-top:1px solid var(--border); text-align:center; padding:6rem 2rem; }
-  .rewatch-stamp { display:inline-block; font-family:var(--font-display); font-size:clamp(1.6rem,4vw,2.8rem); text-transform:uppercase; color:var(--accent); border:3px solid var(--accent); padding:0.6rem 2.2rem; transform:rotate(-2deg); letter-spacing:0.04em; }
-  .rewatch-note { font-size:0.9rem; color:var(--muted); max-width:560px; margin:2rem auto 0; line-height:1.85; }
-
-  footer { padding:4rem 2rem; text-align:center; border-top:1px solid var(--border); }
-  .footer-back { font-family:var(--font-mono); letter-spacing:0.3em; font-size:0.66rem; text-transform:uppercase; color:var(--muted); text-decoration:none; transition:color 0.2s; }
+  .score-denom { font-family:var(--font-mono); font-size:0.62rem; letter-spacing:0.3em; text-transform:uppercase; color:var(--muted); margin-top:0.3rem; }
+  .score-verdict { font-family:var(--font-mono); font-style:italic; font-size:0.82rem; color:var(--accent); line-height:1.6; margin-top:1.2rem; padding-top:1.2rem; border-top:1px solid var(--border); }
+  @media(max-width:700px){ .score-col { position:static; display:flex; align-items:baseline; gap:1.2rem; flex-wrap:wrap; } .score-verdict { border-top:none; margin-top:0; padding-top:0; } }
+  .review-text p { font-size:0.97rem; color:var(--text); line-height:1.85; margin-bottom:1.5rem; }
+  .review-text p:last-child { margin-bottom:0; }
+  .divider { max-width:1020px; margin:0 auto; padding:0 2.4rem; }
+  .divider hr { border:none; border-top:1px solid var(--border); }
+  .quote-section { padding:6rem 2.4rem; text-align:center; }
+  .quote-text { font-family:var(--font-mono); font-style:italic; font-size:clamp(1.1rem,2.8vw,1.75rem); line-height:1.5; max-width:680px; margin:0 auto; color:var(--text); }
+  .quote-attr { font-family:var(--font-mono); letter-spacing:0.3em; font-size:0.6rem; text-transform:uppercase; color:var(--muted); margin-top:1.4rem; }
+  .rewatch-section { background:var(--bg2); border-top:1px solid var(--border); border-bottom:1px solid var(--border); padding:5rem 2.4rem; text-align:center; }
+  .rewatch-label { font-family:var(--font-mono); letter-spacing:0.4em; font-size:0.62rem; text-transform:uppercase; color:var(--muted); margin-bottom:1.8rem; }
+  .rewatch-stamp { display:inline-block; font-family:var(--font-display); font-size:clamp(1.5rem,3.5vw,2.6rem); text-transform:uppercase; color:var(--accent); border:2px solid var(--accent); padding:0.5rem 2rem; transform:rotate(-1.5deg); letter-spacing:0.04em; }
+  .rewatch-note { font-size:0.88rem; color:var(--muted); max-width:520px; margin:1.8rem auto 0; line-height:1.85; font-family:var(--font-mono); font-style:italic; }
+  footer { padding:3.5rem 2.4rem; text-align:center; }
+  .footer-back { font-family:var(--font-mono); letter-spacing:0.3em; font-size:0.62rem; text-transform:uppercase; color:var(--muted); text-decoration:none; transition:color 0.2s; }
   .footer-back:hover { color:var(--accent); }
-
-  @keyframes fadeUp { from{opacity:0;transform:translateY(28px)} to{opacity:1;transform:translateY(0)} }
-  .reveal { opacity:0; transform:translateY(38px); transition:opacity 0.7s ease, transform 0.7s ease; }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(22px)} to{opacity:1;transform:translateY(0)} }
+  .reveal { opacity:0; transform:translateY(30px); transition:opacity 0.65s ease, transform 0.65s ease; }
   .reveal.visible { opacity:1; transform:translateY(0); }
 </style>
 </head>
 <body>
 <div class="progress-bar" id="progress"></div>
-
 <nav>
   <a href="index.html" class="nav-back">← All Cuts</a>
   <div class="nav-score" id="navScore">10</div>
 </nav>
 
 <section class="hero">
-  <div class="hero-bg"></div>
+  <img src="img/there-will-be-blood.jpg" alt="There Will Be Blood" class="hero-img" onerror="this.style.opacity=0">
+  <div class="hero-fallback"></div>
+  <div class="hero-overlay"></div>
   <div class="hero-content">
     <div class="cut-label">Final Cut No. 3</div>
     <h1 class="hero-title">There Will<br>Be Blood</h1>
-    <div class="hero-director">dir. Paul Thomas Anderson</div>
-    <div class="hero-meta">2007 · Drama · 158 min</div>
-    <div class="hero-rule"></div>
-    <div class="scroll-hint">Roll film</div>
+    <div class="hero-credits">dir. Paul Thomas Anderson &nbsp;·&nbsp; 2007 &nbsp;·&nbsp; Drama &nbsp;·&nbsp; 158 min</div>
   </div>
 </section>
 
-<div class="verdict-bar">Capitalism and religion run the same con on the same town, and the movie watches to see which salesman blinks first.</div>
-
-<section class="score-section">
-  <div class="score-inner">
-    <div class="score-display">
-      <div class="score-number">10<span>.0</span></div>
-      <div class="score-label">Out of ten</div>
-    </div>
-    <div>
-      <div class="score-verdict">Two of the greats, director and actor, hitting their absolute ceiling in the same film. That almost never happens. Here it happens for 158 minutes.</div>
-      <div class="score-defense">A 10 means I can't name a scene I'd touch, and I can't. The pace that feels slow on paper is the whole engine: every silence is Daniel calculating. If you want to dock it, the only honest complaint is that it's relentless, and that's not a flaw, that's the design. Nothing to take away, nothing missing. This is the score the scale exists for.</div>
-    </div>
+<section class="review-section">
+  <div class="score-col reveal">
+    <div class="score-number">10<span>.0</span></div>
+    <div class="score-denom">Out of ten</div>
+    <div class="score-verdict">Two monsters enter the same room and spend the film trying to prove the other one blinks first.</div>
+  </div>
+  <div class="review-text reveal">
+    <p>Plainview and Eli Sunday are the same animal wearing different costumes. One sells oil, one sells God, and both know they're selling something people need to believe in. The film's structure is a slow approach of two objects on a collision course, and it opens with sixteen minutes of silence. No dialogue. Just a man alone in a hole in the ground, pulling silver out of rock with a broken leg, dragging himself to the assay office. Daniel Day-Lewis establishes in the first quarter-hour that Plainview is a man of pure will who communicates through what he chooses not to say. Then he opens his mouth and the performance doubles.</p>
+    <p>Paul Dano plays Eli as a genuine believer who has also learned that belief is a business, and the film's cruelty is that we watch Plainview recognize a kindred spirit and hate him for it. The baptism scene, where Eli shouts and slaps Plainview into submission, is the film's pressure point: the moment Plainview decides Eli owes him something he will collect with interest. The bowling alley delivers the interest in one of cinema's great final confrontations, two actors and a director trusting that the years of accumulation are enough to make the scene's excess feel earned rather than absurd.</p>
+    <p>Jonny Greenwood's score sounds like the earth itself is wrong — strings tuned down into something intestinal, music that doesn't accompany the images so much as threaten them. Anderson shoots the oil fields as a landscape of permanent damage. He ended the previous century by mastering ensemble chaos; here he strips the cast until it's one man and whatever he touches, and what he touches cracks. The film is a biography of American appetite and a geological survey of the soul of a man with no use for love. "I'm finished," says Plainview at the end. He is, and we believe him.</p>
   </div>
 </section>
 
-<section class="craft-section">
-  <div class="section">
-    <div class="section-label reveal">The Bench</div>
-    <h2 class="section-title reveal">Craft <em>scorecard</em></h2>
-    <div class="craft-grid reveal">
-      <div class="craft-card">
-        <div class="craft-head"><span class="craft-name">Direction</span><span class="craft-score">10</span></div>
-        <div class="craft-meter"><span style="width:100%"></span></div>
-        <div class="craft-note">Anderson opens with 15 minutes of no dialogue and total command. He trusts the audience like almost no American director does: long takes, information withheld, violence arriving without warning. The film never explains Daniel. It just watches him until you understand.</div>
-      </div>
-      <div class="craft-card">
-        <div class="craft-head"><span class="craft-name">Cinematography</span><span class="craft-score">9.8</span></div>
-        <div class="craft-meter"><span style="width:98%"></span></div>
-        <div class="craft-note">Robert Elswit won the Oscar for this and it wasn't close. Daylight that feels biblical, interiors lit like Rembrandt owed someone money, and the derrick fire at dusk, orange against a dying sky, is one of the most physically overwhelming images in modern film.</div>
-      </div>
-      <div class="craft-card">
-        <div class="craft-head"><span class="craft-name">Acting</span><span class="craft-score">10</span></div>
-        <div class="craft-meter"><span style="width:100%"></span></div>
-        <div class="craft-note">Daniel Day-Lewis gives the performance other performances get measured against now. The voice, the gait, the warmth he can switch on like a salesman's lamp. And Paul Dano, playing twins and matching him scene for scene at 22 years old, never got enough credit for surviving this movie.</div>
-      </div>
-      <div class="craft-card">
-        <div class="craft-head"><span class="craft-name">Writing</span><span class="craft-score">9.7</span></div>
-        <div class="craft-meter"><span style="width:97%"></span></div>
-        <div class="craft-note">Loosely carved out of Upton Sinclair's Oil! and better for the looseness. Dialogue is rationed like water in the desert, so when Daniel finally talks, every line is either a sale or a threat. Usually both.</div>
-      </div>
-      <div class="craft-card">
-        <div class="craft-head"><span class="craft-name">Score &amp; Sound</span><span class="craft-score">10</span></div>
-        <div class="craft-meter"><span style="width:100%"></span></div>
-        <div class="craft-note">Jonny Greenwood's strings sound like the land itself is anxious. It's horror scoring laid over a period drama, dissonant and wrong in exactly the right way, and it rewired what prestige films are allowed to sound like. The Academy ruled it ineligible on a technicality, which remains a crime.</div>
-      </div>
-      <div class="craft-card">
-        <div class="craft-head"><span class="craft-name">Editing</span><span class="craft-score">9.6</span></div>
-        <div class="craft-meter"><span style="width:96%"></span></div>
-        <div class="craft-note">Dylan Tichenor holds shots three beats past comfortable and the discomfort is the point. Then the film jumps to 1927 in a single cut, skipping decades without ceremony, because Daniel's soul stopped changing long before his bank balance did.</div>
-      </div>
-    </div>
-  </div>
-</section>
+<div class="divider reveal"><hr></div>
 
-<section class="section">
-  <div class="section-label reveal">Themes</div>
-  <h2 class="section-title reveal">What it's <em>actually</em> about</h2>
-  <div class="body-text reveal">
-    <p>Daniel Plainview and Eli Sunday are the same animal in different costumes. One sells the ground, the other sells the sky, and both need an audience kneeling. The film's coldest joke is that the oilman and the preacher each force the other into a public humiliation ritual, baptism for Daniel, blasphemy for Eli, and each performs it convincingly because performing is all either of them ever does. America, the movie suggests, was built by exactly these two salesmen, working the same room.</p>
-    <p>Underneath the capitalism-versus-faith fight is something lonelier: a man for whom other people are either tools or competition. Daniel says it out loud once, in the film's only confession: he wants no one else to succeed. H.W. starts as a sweet face for buying land and becomes the one thing Daniel can't fully fake his way through. When he finally calls the boy a "bastard from a basket," he isn't telling H.W. the truth about his birth. He's telling himself a story that makes the loneliness feel like a choice.</p>
-    <p>And the oil itself is the theology. It's down there, it's nobody's, and whoever drinks first wins. The milkshake speech is remembered as a meme, but it's the film's entire worldview compressed into a children's metaphor: everything can be drained from underneath you, by a man smiling at you from across the room.</p>
-  </div>
-</section>
-
-<section class="quote-section">
-  <div class="quote-bg"></div>
-  <div class="quote-text">"I have a competition in me. I want no one else to succeed. I hate most people."</div>
+<section class="quote-section reveal">
+  <div class="quote-text">"I'm an oil man, ladies and gentlemen. I have... a competition in me."</div>
   <div class="quote-attr">Daniel Plainview — There Will Be Blood</div>
 </section>
 
-<section class="section">
-  <div class="section-label reveal">Standout Scenes</div>
-  <h2 class="section-title reveal">The frames that <em>stay</em></h2>
-  <div class="reveal">
-    <div class="scene">
-      <div class="scene-tc">TC 00:01:00</div>
-      <div class="scene-title">The Silent Prologue</div>
-      <div class="scene-text">Fifteen minutes, no dialogue. A man alone in a hole, breaking his leg, dragging himself across the desert on his back to file a silver claim. By the time anyone speaks you already know everything: this man will crawl through anything, and no one is coming to help him because he'd never ask. Most films spend an hour establishing less.</div>
-    </div>
-    <div class="scene">
-      <div class="scene-tc">TC 01:10:00</div>
-      <div class="scene-title">The Derrick Fire</div>
-      <div class="scene-text">The well blows, H.W. loses his hearing, and Daniel stands in the orange glow saying "there's a whole ocean of oil under our feet" with his son deaf in a cabin behind him. Greenwood's drums turn it into a war scene. It's the moment the film shows you his exact exchange rate: one child's ears for an ocean, and he's already counting the barrels.</div>
-    </div>
-    <div class="scene">
-      <div class="scene-tc">TC 01:58:00</div>
-      <div class="scene-title">The Baptism</div>
-      <div class="scene-text">Daniel needs a pipeline easement, the price is salvation, and Eli makes him scream "I've abandoned my child" in front of the congregation, slapping him like a man finally allowed to. Day-Lewis plays three layers at once: the performance for the room, the rage underneath, and somewhere at the bottom, horrifyingly, a flicker of the real thing. The best scene of the 2000s.</div>
-    </div>
-    <div class="scene">
-      <div class="scene-tc">TC 02:30:00</div>
-      <div class="scene-title">The Bowling Alley</div>
-      <div class="scene-text">1927, a mansion, a private bowling alley, and the two salesmen meet one last time with the masks fully off. The milkshake, the chase, the pin. It's pitched at the edge of farce on purpose: this is what's left when a man finally wins everything. He's a creature in a basement, announcing he's finished. The funniest and bleakest ending of its decade, in the same breath.</div>
-    </div>
-  </div>
-</section>
-
-<section class="section" style="padding-top:0;">
-  <div class="section-label reveal">Writing &amp; Dialogue</div>
-  <h2 class="section-title reveal">On the <em>page</em></h2>
-  <div class="body-text reveal">
-    <p>The script understands that Daniel is a man who only speaks in pitches. His land speech to the Little Boston townsfolk ("I'm a family man") is word for word the same con as Eli's sermons, promises of schools, bread, irrigation, salvation. Anderson writes the two vocabularies, commerce and scripture, so they rhyme, and lets the audience notice on their own. And when Daniel finally stops selling, in the confession to his fake brother Henry, the honesty is more frightening than any threat in the film. The one true thing he ever says is that he hates most people.</p>
-  </div>
-</section>
-
-<section class="section" style="padding-top:0;">
-  <div class="section-label reveal">The Honest Take</div>
-  <h2 class="section-title reveal">No <em>notes</em> withheld</h2>
-  <div class="body-text reveal">
-    <p>Some 10s are warm. This one is a furnace you stand next to. It's not a film I'd recommend to everyone, and that has nothing to do with quality: it's two and a half hours inside a misanthrope, scored like a nightmare, ending in a basement. But every single department is operating at a level that has not been improved on since, and the central performance changed the job description for acting. I've seen it maybe six times and it has never once felt shorter or longer than it should. That's what a 10 is.</p>
-  </div>
-</section>
-
 <section class="rewatch-section">
-  <div class="section-label reveal">Rewatch Verdict</div>
-  <div class="reveal" style="margin-top:1.5rem;">
-    <span class="rewatch-stamp">Rewatch It</span>
-  </div>
-  <div class="rewatch-note reveal">It rewatches like scripture: you stop following the story and start studying the delivery. Every few years it reveals a new layer, usually in a scene you thought you had memorized.</div>
+  <div class="rewatch-label reveal">Rewatch verdict</div>
+  <div class="reveal"><span class="rewatch-stamp">Rewatch It</span></div>
+  <div class="rewatch-note reveal">The bowling alley is the ending, but the silent prologue is the argument — watch it twice and the whole film reorganizes around what one man will do alone.</div>
 </section>
 
 <footer>
@@ -251,29 +113,12 @@
     const el = document.documentElement;
     const total = el.scrollHeight - el.clientHeight;
     document.getElementById('progress').style.width = (total > 0 ? el.scrollTop / total * 100 : 0) + '%';
-    document.getElementById('navScore').classList.toggle('visible', el.scrollTop > window.innerHeight * 0.8);
+    document.getElementById('navScore').classList.toggle('visible', el.scrollTop > window.innerHeight * 0.6);
   }, { passive:true });
-
   const io = new IntersectionObserver(entries => {
     entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
-  }, { threshold:0.12 });
+  }, { threshold:0.1 });
   document.querySelectorAll('.reveal').forEach(el => io.observe(el));
-
-  const meters = new IntersectionObserver(entries => {
-    entries.forEach(e => {
-      if (e.isIntersecting) {
-        const span = e.target.querySelector('span');
-        span.style.transition = 'width 0.9s ease';
-        requestAnimationFrame(() => { span.style.width = span.dataset.w; });
-      }
-    });
-  }, { threshold:0.5 });
-  document.querySelectorAll('.craft-meter').forEach(m => {
-    const span = m.querySelector('span');
-    span.dataset.w = span.style.width;
-    span.style.width = '0%';
-    meters.observe(m);
-  });
 </script>
 </body>
 </html>

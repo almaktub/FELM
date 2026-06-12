@@ -8,10 +8,9 @@
 <style>
   *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
   :root {
-    --bg:#0a0908; --bg2:#100f0c; --bg3:#161410;
+    --bg:#0a0908; --bg2:#100f0c;
     --accent:#7a8a4f;
-    --accent-glow:rgba(122,138,79,0.12);
-    --amber:#e8a33d;
+    --accent-glow:rgba(122,138,79,0.15);
     --text:#e9e4d8; --muted:#76705f;
     --border:rgba(255,255,255,0.06);
     --font-display:'Anton',sans-serif;
@@ -19,226 +18,90 @@
     --font-mono:'IBM Plex Mono',monospace;
   }
   html { scroll-behavior:smooth; }
-  body { background:var(--bg); color:var(--text); font-family:var(--font-body); font-weight:300; line-height:1.7; overflow-x:hidden; }
-  body::before, body::after {
-    content:''; position:fixed; top:0; bottom:0; width:22px; z-index:50; pointer-events:none;
-    background-image:radial-gradient(circle at center, rgba(255,255,255,0.07) 4px, transparent 5px);
-    background-size:22px 34px; background-repeat:repeat-y; background-position:center;
-  }
-  body::before { left:0; border-right:1px solid var(--border); }
-  body::after { right:0; border-left:1px solid var(--border); }
-  @media(max-width:700px){ body::before, body::after { display:none; } }
-
+  body { background:var(--bg); color:var(--text); font-family:var(--font-body); font-weight:300; line-height:1.75; overflow-x:hidden; }
   .progress-bar { position:fixed; top:0; left:0; height:2px; background:var(--accent); z-index:200; width:0%; transition:width 0.1s linear; }
-  nav { position:fixed; top:0; left:0; right:0; padding:1.1rem 2.5rem; display:flex; justify-content:space-between; align-items:center; z-index:100; background:linear-gradient(to bottom, rgba(10,9,8,0.92), transparent); }
-  .nav-back { font-family:var(--font-mono); letter-spacing:0.25em; font-size:0.66rem; text-transform:uppercase; color:var(--muted); text-decoration:none; transition:color 0.2s; }
+  nav { position:fixed; top:0; left:0; right:0; padding:1.1rem 2.2rem; display:flex; justify-content:space-between; align-items:center; z-index:100; background:linear-gradient(to bottom, rgba(10,9,8,0.9) 0%, transparent 100%); }
+  .nav-back { font-family:var(--font-mono); letter-spacing:0.25em; font-size:0.64rem; text-transform:uppercase; color:rgba(255,255,255,0.45); text-decoration:none; transition:color 0.2s; }
   .nav-back:hover { color:var(--accent); }
-  .nav-score { font-family:var(--font-display); font-size:1.1rem; color:var(--accent); opacity:0; transition:opacity 0.4s; }
+  .nav-score { font-family:var(--font-display); font-size:1.05rem; color:var(--accent); opacity:0; transition:opacity 0.4s; }
   .nav-score.visible { opacity:1; }
-
-  .hero { min-height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center; position:relative; overflow:hidden; padding:4rem 2rem; text-align:center; }
-  .hero-bg { position:absolute; inset:0; background:radial-gradient(ellipse 75% 55% at 50% 45%, var(--accent-glow) 0%, transparent 68%), var(--bg); z-index:0; }
-  .hero-content { position:relative; z-index:1; }
-  .cut-label { font-family:var(--font-mono); letter-spacing:0.4em; font-size:0.66rem; color:var(--accent); text-transform:uppercase; margin-bottom:1.8rem; opacity:0; animation:fadeUp 0.8s ease 0.2s forwards; }
-  .hero-title { font-family:var(--font-display); font-size:clamp(3.4rem,14vw,12rem); line-height:0.92; letter-spacing:0.01em; text-transform:uppercase; color:var(--text); opacity:0; animation:fadeUp 0.8s ease 0.4s forwards; max-width:1000px; }
-  .hero-director { font-family:var(--font-mono); font-style:italic; font-size:clamp(0.95rem,2.5vw,1.4rem); color:var(--accent); margin-top:1rem; opacity:0; animation:fadeUp 0.8s ease 0.6s forwards; }
-  .hero-meta { font-family:var(--font-mono); letter-spacing:0.3em; font-size:0.74rem; color:var(--muted); margin-top:1.5rem; text-transform:uppercase; opacity:0; animation:fadeUp 0.8s ease 0.8s forwards; }
-  .hero-rule { width:1px; height:70px; background:linear-gradient(to bottom, var(--accent), transparent); margin:3rem auto 0; opacity:0; animation:fadeUp 0.8s ease 1s forwards; }
-  .scroll-hint { font-family:var(--font-mono); font-size:0.62rem; letter-spacing:0.35em; color:var(--muted); text-transform:uppercase; margin-top:0.8rem; opacity:0; animation:fadeUp 0.8s ease 1.2s forwards; }
-
-  .verdict-bar { background:var(--accent); padding:1.1rem 2rem; text-align:center; font-size:0.92rem; color:rgba(0,0,0,0.85); font-weight:500; line-height:1.5; }
-
-  .score-section { background:var(--bg2); border-top:1px solid var(--border); border-bottom:1px solid var(--border); }
-  .score-inner { max-width:920px; margin:0 auto; padding:6rem 2rem; display:grid; grid-template-columns:1fr 1.5fr; gap:5rem; align-items:center; }
-  @media(max-width:640px){ .score-inner{grid-template-columns:1fr;gap:2.5rem;} }
-  .score-display { text-align:center; }
-  .score-number { font-family:var(--font-display); font-size:clamp(5rem,15vw,10rem); line-height:1; color:var(--text); }
+  .hero { position:relative; height:100vh; min-height:560px; overflow:hidden; display:flex; align-items:flex-end; }
+  .hero-img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center; }
+  .hero-fallback { position:absolute; inset:0; background:radial-gradient(ellipse 80% 60% at 50% 40%, var(--accent-glow), var(--bg) 70%); }
+  .hero-overlay { position:absolute; inset:0; background:linear-gradient(to top, rgba(10,9,8,0.96) 0%, rgba(10,9,8,0.45) 45%, rgba(10,9,8,0.1) 100%); }
+  .hero-content { position:relative; z-index:1; width:100%; padding:0 2.4rem 3.5rem; }
+  .cut-label { font-family:var(--font-mono); letter-spacing:0.4em; font-size:0.62rem; color:var(--accent); text-transform:uppercase; margin-bottom:1rem; opacity:0; animation:fadeUp 0.7s ease 0.2s forwards; }
+  .hero-title { font-family:var(--font-display); font-size:clamp(3rem,11vw,9rem); line-height:0.9; text-transform:uppercase; color:var(--text); opacity:0; animation:fadeUp 0.7s ease 0.4s forwards; max-width:900px; }
+  .hero-credits { font-family:var(--font-mono); font-size:0.78rem; color:rgba(255,255,255,0.38); letter-spacing:0.2em; text-transform:uppercase; margin-top:1.1rem; opacity:0; animation:fadeUp 0.7s ease 0.6s forwards; }
+  .review-section { max-width:1020px; margin:0 auto; padding:6rem 2.4rem; display:grid; grid-template-columns:180px 1fr; gap:5rem; align-items:start; }
+  @media(max-width:700px){ .review-section { grid-template-columns:1fr; gap:2.5rem; padding:4rem 1.6rem; } }
+  .score-col { position:sticky; top:5rem; }
+  .score-number { font-family:var(--font-display); font-size:clamp(4rem,10vw,7.5rem); line-height:1; color:var(--text); }
   .score-number span { color:var(--accent); }
-  .score-label { font-family:var(--font-mono); letter-spacing:0.35em; font-size:0.68rem; text-transform:uppercase; color:var(--muted); margin-top:0.4rem; }
-  .score-verdict { font-family:var(--font-mono); font-style:italic; font-size:1.15rem; line-height:1.6; margin-bottom:1.5rem; color:var(--text); }
-  .score-defense { font-size:0.88rem; color:var(--muted); line-height:1.85; }
-
-  .section { max-width:920px; margin:0 auto; padding:6rem 2rem; }
-  .section-label { font-family:var(--font-mono); letter-spacing:0.4em; font-size:0.64rem; color:var(--accent); text-transform:uppercase; margin-bottom:1.4rem; }
-  .section-title { font-family:var(--font-display); font-size:clamp(1.8rem,4.5vw,3.2rem); line-height:1.1; text-transform:uppercase; margin-bottom:2.5rem; }
-  .section-title em { font-style:normal; color:var(--accent); }
-  .body-text p { margin-bottom:1.4rem; font-size:0.95rem; color:var(--text); }
-  .body-text p:last-child { margin-bottom:0; }
-
-  .craft-section { background:var(--bg2); border-top:1px solid var(--border); border-bottom:1px solid var(--border); }
-  .craft-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:1.5px; background:var(--border); border:1px solid var(--border); }
-  .craft-card { background:var(--bg2); padding:2.2rem 1.8rem; position:relative; overflow:hidden; transition:background 0.2s; }
-  .craft-card::before { content:''; position:absolute; top:0; left:0; width:3px; height:0; background:var(--accent); transition:height 0.3s; }
-  .craft-card:hover::before { height:100%; }
-  .craft-card:hover { background:var(--bg3); }
-  .craft-head { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:0.9rem; }
-  .craft-name { font-family:var(--font-mono); letter-spacing:0.25em; font-size:0.66rem; text-transform:uppercase; color:var(--text); }
-  .craft-score { font-family:var(--font-display); font-size:1.5rem; color:var(--accent); }
-  .craft-meter { height:3px; background:rgba(255,255,255,0.07); margin-bottom:1rem; }
-  .craft-meter span { display:block; height:100%; background:var(--accent); }
-  .craft-note { font-size:0.82rem; color:var(--muted); line-height:1.75; }
-
-  .quote-section { padding:7rem 2rem; text-align:center; position:relative; overflow:hidden; }
-  .quote-bg { position:absolute; inset:0; background:radial-gradient(ellipse 55% 55% at 50% 50%, var(--accent-glow) 0%, transparent 70%); opacity:0.5; }
-  .quote-text { font-family:var(--font-mono); font-style:italic; font-size:clamp(1.2rem,3vw,2rem); line-height:1.5; max-width:680px; margin:0 auto; position:relative; z-index:1; }
-  .quote-attr { font-family:var(--font-mono); letter-spacing:0.3em; font-size:0.62rem; text-transform:uppercase; color:var(--muted); margin-top:1.5rem; position:relative; z-index:1; }
-
-  .scene { border-left:3px solid var(--accent); background:var(--bg2); padding:2rem 2.2rem; margin-bottom:1.5rem; }
-  .scene-tc { font-family:var(--font-mono); font-size:0.64rem; letter-spacing:0.25em; color:var(--accent); text-transform:uppercase; margin-bottom:0.5rem; }
-  .scene-title { font-family:var(--font-display); font-size:1.3rem; text-transform:uppercase; margin-bottom:0.8rem; }
-  .scene-text { font-size:0.88rem; color:var(--muted); line-height:1.85; }
-
-  .rewatch-section { background:var(--bg2); border-top:1px solid var(--border); text-align:center; padding:6rem 2rem; }
-  .rewatch-stamp { display:inline-block; font-family:var(--font-display); font-size:clamp(1.6rem,4vw,2.8rem); text-transform:uppercase; color:var(--accent); border:3px solid var(--accent); padding:0.6rem 2.2rem; transform:rotate(-2deg); letter-spacing:0.04em; }
-  .rewatch-note { font-size:0.9rem; color:var(--muted); max-width:560px; margin:2rem auto 0; line-height:1.85; }
-
-  footer { padding:4rem 2rem; text-align:center; border-top:1px solid var(--border); }
-  .footer-back { font-family:var(--font-mono); letter-spacing:0.3em; font-size:0.66rem; text-transform:uppercase; color:var(--muted); text-decoration:none; transition:color 0.2s; }
+  .score-denom { font-family:var(--font-mono); font-size:0.62rem; letter-spacing:0.3em; text-transform:uppercase; color:var(--muted); margin-top:0.3rem; }
+  .score-verdict { font-family:var(--font-mono); font-style:italic; font-size:0.82rem; color:var(--accent); line-height:1.6; margin-top:1.2rem; padding-top:1.2rem; border-top:1px solid var(--border); }
+  @media(max-width:700px){ .score-col { position:static; display:flex; align-items:baseline; gap:1.2rem; flex-wrap:wrap; } .score-verdict { border-top:none; margin-top:0; padding-top:0; } }
+  .review-text p { font-size:0.97rem; color:var(--text); line-height:1.85; margin-bottom:1.5rem; }
+  .review-text p:last-child { margin-bottom:0; }
+  .divider { max-width:1020px; margin:0 auto; padding:0 2.4rem; }
+  .divider hr { border:none; border-top:1px solid var(--border); }
+  .quote-section { padding:6rem 2.4rem; text-align:center; }
+  .quote-text { font-family:var(--font-mono); font-style:italic; font-size:clamp(1.1rem,2.8vw,1.75rem); line-height:1.5; max-width:680px; margin:0 auto; color:var(--text); }
+  .quote-attr { font-family:var(--font-mono); letter-spacing:0.3em; font-size:0.6rem; text-transform:uppercase; color:var(--muted); margin-top:1.4rem; }
+  .rewatch-section { background:var(--bg2); border-top:1px solid var(--border); border-bottom:1px solid var(--border); padding:5rem 2.4rem; text-align:center; }
+  .rewatch-label { font-family:var(--font-mono); letter-spacing:0.4em; font-size:0.62rem; text-transform:uppercase; color:var(--muted); margin-bottom:1.8rem; }
+  .rewatch-stamp { display:inline-block; font-family:var(--font-display); font-size:clamp(1.5rem,3.5vw,2.6rem); text-transform:uppercase; color:var(--accent); border:2px solid var(--accent); padding:0.5rem 2rem; transform:rotate(-1.5deg); letter-spacing:0.04em; }
+  .rewatch-note { font-size:0.88rem; color:var(--muted); max-width:520px; margin:1.8rem auto 0; line-height:1.85; font-family:var(--font-mono); font-style:italic; }
+  footer { padding:3.5rem 2.4rem; text-align:center; }
+  .footer-back { font-family:var(--font-mono); letter-spacing:0.3em; font-size:0.62rem; text-transform:uppercase; color:var(--muted); text-decoration:none; transition:color 0.2s; }
   .footer-back:hover { color:var(--accent); }
-
-  @keyframes fadeUp { from{opacity:0;transform:translateY(28px)} to{opacity:1;transform:translateY(0)} }
-  .reveal { opacity:0; transform:translateY(38px); transition:opacity 0.7s ease, transform 0.7s ease; }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(22px)} to{opacity:1;transform:translateY(0)} }
+  .reveal { opacity:0; transform:translateY(30px); transition:opacity 0.65s ease, transform 0.65s ease; }
   .reveal.visible { opacity:1; transform:translateY(0); }
 </style>
 </head>
 <body>
 <div class="progress-bar" id="progress"></div>
-
 <nav>
   <a href="index.html" class="nav-back">← All Cuts</a>
   <div class="nav-score" id="navScore">10</div>
 </nav>
 
 <section class="hero">
-  <div class="hero-bg"></div>
+  <img src="img/stalker.jpg" alt="Stalker" class="hero-img" onerror="this.style.opacity=0">
+  <div class="hero-fallback"></div>
+  <div class="hero-overlay"></div>
   <div class="hero-content">
     <div class="cut-label">Final Cut No. 9</div>
     <h1 class="hero-title">Stalker</h1>
-    <div class="hero-director">dir. Andrei Tarkovsky</div>
-    <div class="hero-meta">1979 · Sci-Fi · 162 min</div>
-    <div class="hero-rule"></div>
-    <div class="scroll-hint">Roll film</div>
+    <div class="hero-credits">dir. Andrei Tarkovsky &nbsp;·&nbsp; 1979 &nbsp;·&nbsp; Drama &nbsp;·&nbsp; 162 min</div>
   </div>
 </section>
 
-<div class="verdict-bar">Three men walk toward a room that grants your deepest wish. The horror is realizing none of them want to find out what theirs is.</div>
-
-<section class="score-section">
-  <div class="score-inner">
-    <div class="score-display">
-      <div class="score-number">10<span>.0</span></div>
-      <div class="score-label">Out of ten</div>
-    </div>
-    <div>
-      <div class="score-verdict">Science fiction with no aliens, no effects, and no answers, just wet grass, rusting tanks, and the heaviest question a film has ever carried: what do you actually believe?</div>
-      <div class="score-defense">This is the hardest 10 on the site to defend because the film does everything modern cinema says you can't: 142 shots in 162 minutes, dialogue that's mostly philosophy, a climax where three men sit in the rain and don't enter a room. But every frame earns its length; the film slows your pulse to its speed and then operates on you. There's a reason people don't say Stalker is their favorite film. They say it changed them. Different category.</div>
-    </div>
+<section class="review-section">
+  <div class="score-col reveal">
+    <div class="score-number">10<span>.0</span></div>
+    <div class="score-denom">Out of ten</div>
+    <div class="score-verdict">A film about faith made by a man who understood that doubt is what faith is made of.</div>
+  </div>
+  <div class="review-text reveal">
+    <p>The Room grants your deepest desire. Not your announced desire — your actual one. This distinction destroys a man in the film's backstory, a porcupine who entered asking for his dead brother's return and received a fortune instead, revealing what he really wanted. No one in Stalker's present journey reaches the Room. They turn back before the threshold and the film lets this be enough, which is an act of profound artistic restraint and also the only honest ending available. You cannot show a room that reveals the truth about a person without lying about what truth looks like.</p>
+    <p>Tarkovsky films the Zone in color and everything outside it in sepia. The Zone is not hostile; it's alive. It rearranges itself according to the hopes and fears of whoever moves through it, so the path that worked yesterday will kill you today. The Stalker navigates by faith, throwing a bolt ahead to test ground that has no stable ground. He has been there many times and never entered the Room. He leads others to it and cannot go himself. Whether this is humility or cowardice is the film's central unresolved question. The Writer and the Professor represent different corruptions of intellect: one nihilism, one the arrogance of the technician. The Stalker believes. The Zone doesn't reward him for it. It doesn't punish him either. The Zone doesn't care.</p>
+    <p>The film's final image — the Stalker's daughter moving glasses across a table without touching them, Beethoven's Ode to Joy rising on the soundtrack — lands differently depending on what you've brought into the theater. It's either miraculous or haunting or both. Tarkovsky provides no guardrails. He made the film while dying from the same industrial chemicals used on location and finished it knowing it. That fact doesn't belong in a review and I can't leave it out.</p>
   </div>
 </section>
 
-<section class="craft-section">
-  <div class="section">
-    <div class="section-label reveal">The Bench</div>
-    <h2 class="section-title reveal">Craft <em>scorecard</em></h2>
-    <div class="craft-grid reveal">
-      <div class="craft-card">
-        <div class="craft-head"><span class="craft-name">Direction</span><span class="craft-score">10</span></div>
-        <div class="craft-meter"><span style="width:100%"></span></div>
-        <div class="craft-note">Tarkovsky treats time itself as his material, "sculpting in time," he called it, and holds shots until they pass through boredom into trance. He shot the entire film, lost it to a lab disaster, and shot it all again. The version we have is a remake by a man possessed.</div>
-      </div>
-      <div class="craft-card">
-        <div class="craft-head"><span class="craft-name">Cinematography</span><span class="craft-score">9.8</span></div>
-        <div class="craft-meter"><span style="width:98%"></span></div>
-        <div class="craft-note">Sepia for the world, color for the Zone, and the transition lands like a religious event. Knyazhinsky's camera drifts over moss, syringes, and submerged icons like the eye of something patient. The Zone is just overgrown Estonian industrial ruin, and it's the most otherworldly location ever filmed.</div>
-      </div>
-      <div class="craft-card">
-        <div class="craft-head"><span class="craft-name">Acting</span><span class="craft-score">9.3</span></div>
-        <div class="craft-meter"><span style="width:93%"></span></div>
-        <div class="craft-note">Kaidanovsky plays the Stalker as a tortured believer, part guide, part beggar at his own church. Solonitsyn's Writer gets the showiest despair, Grinko's Professor the quietest. And Alisa Freindlich, in two scenes as the wife, delivers a monologue to camera that outweighs the whole journey.</div>
-      </div>
-      <div class="craft-card">
-        <div class="craft-head"><span class="craft-name">Writing</span><span class="craft-score">9.5</span></div>
-        <div class="craft-meter"><span style="width:95%"></span></div>
-        <div class="craft-note">The Strugatsky brothers rewrote their own novel until almost nothing remained but the premise, and what's left is closer to scripture than sci-fi: parables, confessions, arguments about faith between men named only by their functions. The room never demonstrates a single power, and the script is airtight anyway.</div>
-      </div>
-      <div class="craft-card">
-        <div class="craft-head"><span class="craft-name">Score &amp; Sound</span><span class="craft-score">9.6</span></div>
-        <div class="craft-meter"><span style="width:96%"></span></div>
-        <div class="craft-note">Artemyev's synthesizer drone fuses with train rhythms until industry becomes liturgy, most famously on the rail trolley ride, four minutes of clanging meditation that carries the men between worlds. Water is the other instrument: dripping, pooling, falling through every scene.</div>
-      </div>
-      <div class="craft-card">
-        <div class="craft-head"><span class="craft-name">Editing</span><span class="craft-score">9.2</span></div>
-        <div class="craft-meter"><span style="width:92%"></span></div>
-        <div class="craft-note">Editing by refusal: 142 shots in nearly three hours, each cut carrying the weight a normal film spreads across fifty. When the film does cut, it can move you hundreds of meters or several hours without explanation, exactly like the Zone itself.</div>
-      </div>
-    </div>
-  </div>
-</section>
+<div class="divider reveal"><hr></div>
 
-<section class="section">
-  <div class="section-label reveal">Themes</div>
-  <h2 class="section-title reveal">What it's <em>actually</em> about</h2>
-  <div class="body-text reveal">
-    <p>The room grants your innermost desire, not the one you announce, the one you actually have. That single rule turns a treasure hunt into a confession booth. The Writer wants inspiration, officially; he stalls at the threshold because he's terrified of learning what he really wants instead. The Professor brings a bomb, because a place that reveals true desire is the most dangerous object on earth. The legend of Porcupine, who came seeking his dead brother and went home rich, then hanged himself, hangs over everything: the room doesn't judge you, it just shows you, and that's worse.</p>
-    <p>The Stalker himself is the film's aching center: a man who guides others to the threshold of meaning and can never use it, because his desire is for other people to believe. His final breakdown, weeping that no one believes in anything anymore, is Tarkovsky talking through him, and the film's answer arrives not in the Zone but in his crippled daughter, in the last shot, doing something quietly impossible. Whether it's a miracle or radiation, the film leaves to you, which is the entire point: faith is precisely the decision you make about that shot.</p>
-  </div>
-</section>
-
-<section class="quote-section">
-  <div class="quote-bg"></div>
-  <div class="quote-text">"Let them believe. And let them laugh at their passions... weakness is great, and strength is worthless."</div>
+<section class="quote-section reveal">
+  <div class="quote-text">"Let them believe. And let them laugh at their passions. Because what they call passion is not really the energy of the soul, but merely friction between the soul and the outside world."</div>
   <div class="quote-attr">Stalker — Stalker</div>
 </section>
 
-<section class="section">
-  <div class="section-label reveal">Standout Scenes</div>
-  <h2 class="section-title reveal">The frames that <em>stay</em></h2>
-  <div class="reveal">
-    <div class="scene">
-      <div class="scene-tc">TC 00:32:00</div>
-      <div class="scene-title">The Rail Trolley</div>
-      <div class="scene-text">Three men ride a motorized trolley out of the sepia world, and for four minutes the film shows nothing but the backs of their heads while the rails clang and Artemyev's drone swells. By the time the film cuts to color, you've crossed over with them. It's a hypnotic induction disguised as a commute, and it works on every single viewer who lets it.</div>
-    </div>
-    <div class="scene">
-      <div class="scene-tc">TC 01:38:00</div>
-      <div class="scene-title">The Meat Grinder</div>
-      <div class="scene-text">A long, dripping tunnel that the Stalker says devours people, entered one man at a time. Nothing attacks. Nothing happens at all except water, echo, and a man's breathing, and it's one of the most frightening sequences ever filmed, because the Zone's only confirmed weapon is what you carry in with you.</div>
-    </div>
-    <div class="scene">
-      <div class="scene-tc">TC 02:18:00</div>
-      <div class="scene-title">The Threshold</div>
-      <div class="scene-text">They reach the room. The Writer won't enter, the Professor assembles his bomb instead, and the Stalker pleads with both like a priest watching his church dismantled. Then the three of them simply sit, exhausted, as rain falls inside the building and stops. The anticlimax is the climax: offered everything, men choose not to know themselves. It lands like a verdict on the species.</div>
-    </div>
-    <div class="scene">
-      <div class="scene-tc">TC 02:38:00</div>
-      <div class="scene-title">The Glass on the Table</div>
-      <div class="scene-text">Home again, the Stalker's daughter, born lame, "a child of the Zone," rests her head on the kitchen table and looks at three glasses. One by one, they slide. A train passes, the table shakes, and the film refuses to tell you whether you witnessed telekinesis or vibration. The most quietly radical ending in cinema: it hands the entire meaning of the film to your answer.</div>
-    </div>
-  </div>
-</section>
-
-<section class="section" style="padding-top:0;">
-  <div class="section-label reveal">Writing &amp; Dialogue</div>
-  <h2 class="section-title reveal">On the <em>page</em></h2>
-  <div class="body-text reveal">
-    <p>Three men named only Writer, Professor, and Stalker: the script strips its characters to functions so their arguments become the plot. The Writer gets the great monologues of despair ("My conscience wants vegetarianism to win over the world. And my subconscious is yearning for a piece of juicy meat"), the Professor speaks in rationalist suspicion, and the Stalker mostly begs. Tarkovsky's trick is that the film's wisest text belongs to the women on its edges: the wife's direct-to-camera monologue about choosing a bitter happiness over a gray life, and the daughter's closing recitation of a love poem, silent, in voiceover, over the sliding glasses. The men argue about meaning for three hours. The women simply have it.</p>
-  </div>
-</section>
-
-<section class="section" style="padding-top:0;">
-  <div class="section-label reveal">The Honest Take</div>
-  <h2 class="section-title reveal">No <em>notes</em> withheld</h2>
-  <div class="body-text reveal">
-    <p>Full disclosure: this film demands more than any other 10 on this site. It wants a quiet evening, zero distractions, and your patience as a down payment, and if you give it less it will feel like watching moss grow. I also won't pretend the philosophy never circles; the Writer's third lament covers ground his first one mapped. But no film has ever used the medium's unique power, duration, this completely. It's the difference between a film about faith and a film that puts you through the experience of needing it. The crew shot in actual toxic ruins; several, including Tarkovsky, died young, possibly because of it. I don't score films on what they cost the people who made them. But this one feels like it knows.</p>
-  </div>
-</section>
-
 <section class="rewatch-section">
-  <div class="section-label reveal">Rewatch Verdict</div>
-  <div class="reveal" style="margin-top:1.5rem;">
-    <span class="rewatch-stamp">Rewatch It</span>
-  </div>
-  <div class="rewatch-note reveal">Not often, and never casually. Every few years, when the conditions are right, it's less a rewatch than a return visit, and the Zone has rearranged itself every time, because you have.</div>
+  <div class="rewatch-label reveal">Rewatch verdict</div>
+  <div class="reveal"><span class="rewatch-stamp">Rewatch It</span></div>
+  <div class="rewatch-note reveal">Not a film for every mood, but the one you return to when the questions feel more important than the answers.</div>
 </section>
 
 <footer>
@@ -250,29 +113,12 @@
     const el = document.documentElement;
     const total = el.scrollHeight - el.clientHeight;
     document.getElementById('progress').style.width = (total > 0 ? el.scrollTop / total * 100 : 0) + '%';
-    document.getElementById('navScore').classList.toggle('visible', el.scrollTop > window.innerHeight * 0.8);
+    document.getElementById('navScore').classList.toggle('visible', el.scrollTop > window.innerHeight * 0.6);
   }, { passive:true });
-
   const io = new IntersectionObserver(entries => {
     entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
-  }, { threshold:0.12 });
+  }, { threshold:0.1 });
   document.querySelectorAll('.reveal').forEach(el => io.observe(el));
-
-  const meters = new IntersectionObserver(entries => {
-    entries.forEach(e => {
-      if (e.isIntersecting) {
-        const span = e.target.querySelector('span');
-        span.style.transition = 'width 0.9s ease';
-        requestAnimationFrame(() => { span.style.width = span.dataset.w; });
-      }
-    });
-  }, { threshold:0.5 });
-  document.querySelectorAll('.craft-meter').forEach(m => {
-    const span = m.querySelector('span');
-    span.dataset.w = span.style.width;
-    span.style.width = '0%';
-    meters.observe(m);
-  });
 </script>
 </body>
 </html>

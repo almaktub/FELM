@@ -8,10 +8,9 @@
 <style>
   *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
   :root {
-    --bg:#0a0908; --bg2:#100f0c; --bg3:#161410;
+    --bg:#0a0908; --bg2:#100f0c;
     --accent:#d23c2a;
-    --accent-glow:rgba(210,60,42,0.12);
-    --amber:#e8a33d;
+    --accent-glow:rgba(210,60,42,0.15);
     --text:#e9e4d8; --muted:#76705f;
     --border:rgba(255,255,255,0.06);
     --font-display:'Anton',sans-serif;
@@ -19,233 +18,90 @@
     --font-mono:'IBM Plex Mono',monospace;
   }
   html { scroll-behavior:smooth; }
-  body { background:var(--bg); color:var(--text); font-family:var(--font-body); font-weight:300; line-height:1.7; overflow-x:hidden; }
-  body::before, body::after {
-    content:''; position:fixed; top:0; bottom:0; width:22px; z-index:50; pointer-events:none;
-    background-image:radial-gradient(circle at center, rgba(255,255,255,0.07) 4px, transparent 5px);
-    background-size:22px 34px; background-repeat:repeat-y; background-position:center;
-  }
-  body::before { left:0; border-right:1px solid var(--border); }
-  body::after { right:0; border-left:1px solid var(--border); }
-  @media(max-width:700px){ body::before, body::after { display:none; } }
-
+  body { background:var(--bg); color:var(--text); font-family:var(--font-body); font-weight:300; line-height:1.75; overflow-x:hidden; }
   .progress-bar { position:fixed; top:0; left:0; height:2px; background:var(--accent); z-index:200; width:0%; transition:width 0.1s linear; }
-  nav { position:fixed; top:0; left:0; right:0; padding:1.1rem 2.5rem; display:flex; justify-content:space-between; align-items:center; z-index:100; background:linear-gradient(to bottom, rgba(10,9,8,0.92), transparent); }
-  .nav-back { font-family:var(--font-mono); letter-spacing:0.25em; font-size:0.66rem; text-transform:uppercase; color:var(--muted); text-decoration:none; transition:color 0.2s; }
+  nav { position:fixed; top:0; left:0; right:0; padding:1.1rem 2.2rem; display:flex; justify-content:space-between; align-items:center; z-index:100; background:linear-gradient(to bottom, rgba(10,9,8,0.9) 0%, transparent 100%); }
+  .nav-back { font-family:var(--font-mono); letter-spacing:0.25em; font-size:0.64rem; text-transform:uppercase; color:rgba(255,255,255,0.45); text-decoration:none; transition:color 0.2s; }
   .nav-back:hover { color:var(--accent); }
-  .nav-score { font-family:var(--font-display); font-size:1.1rem; color:var(--accent); opacity:0; transition:opacity 0.4s; }
+  .nav-score { font-family:var(--font-display); font-size:1.05rem; color:var(--accent); opacity:0; transition:opacity 0.4s; }
   .nav-score.visible { opacity:1; }
-
-  .hero { min-height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center; position:relative; overflow:hidden; padding:4rem 2rem; text-align:center; }
-  .hero-bg { position:absolute; inset:0; background:radial-gradient(ellipse 75% 55% at 50% 45%, var(--accent-glow) 0%, transparent 68%), var(--bg); z-index:0; }
-  .hero-content { position:relative; z-index:1; }
-  .cut-label { font-family:var(--font-mono); letter-spacing:0.4em; font-size:0.66rem; color:var(--accent); text-transform:uppercase; margin-bottom:1.8rem; opacity:0; animation:fadeUp 0.8s ease 0.2s forwards; }
-  .hero-title { font-family:var(--font-display); font-size:clamp(3.4rem,14vw,12rem); line-height:0.92; letter-spacing:0.01em; text-transform:uppercase; color:var(--text); opacity:0; animation:fadeUp 0.8s ease 0.4s forwards; max-width:1000px; }
-  .hero-director { font-family:var(--font-mono); font-style:italic; font-size:clamp(0.95rem,2.5vw,1.4rem); color:var(--accent); margin-top:1rem; opacity:0; animation:fadeUp 0.8s ease 0.6s forwards; }
-  .hero-meta { font-family:var(--font-mono); letter-spacing:0.3em; font-size:0.74rem; color:var(--muted); margin-top:1.5rem; text-transform:uppercase; opacity:0; animation:fadeUp 0.8s ease 0.8s forwards; }
-  .hero-rule { width:1px; height:70px; background:linear-gradient(to bottom, var(--accent), transparent); margin:3rem auto 0; opacity:0; animation:fadeUp 0.8s ease 1s forwards; }
-  .scroll-hint { font-family:var(--font-mono); font-size:0.62rem; letter-spacing:0.35em; color:var(--muted); text-transform:uppercase; margin-top:0.8rem; opacity:0; animation:fadeUp 0.8s ease 1.2s forwards; }
-
-  .verdict-bar { background:var(--accent); padding:1.1rem 2rem; text-align:center; font-size:0.92rem; color:rgba(0,0,0,0.85); font-weight:500; line-height:1.5; }
-
-  .score-section { background:var(--bg2); border-top:1px solid var(--border); border-bottom:1px solid var(--border); }
-  .score-inner { max-width:920px; margin:0 auto; padding:6rem 2rem; display:grid; grid-template-columns:1fr 1.5fr; gap:5rem; align-items:center; }
-  @media(max-width:640px){ .score-inner{grid-template-columns:1fr;gap:2.5rem;} }
-  .score-display { text-align:center; }
-  .score-number { font-family:var(--font-display); font-size:clamp(5.5rem,16vw,11rem); line-height:1; color:var(--text); }
+  .hero { position:relative; height:100vh; min-height:560px; overflow:hidden; display:flex; align-items:flex-end; }
+  .hero-img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center; }
+  .hero-fallback { position:absolute; inset:0; background:radial-gradient(ellipse 80% 60% at 50% 40%, var(--accent-glow), var(--bg) 70%); }
+  .hero-overlay { position:absolute; inset:0; background:linear-gradient(to top, rgba(10,9,8,0.96) 0%, rgba(10,9,8,0.45) 45%, rgba(10,9,8,0.1) 100%); }
+  .hero-content { position:relative; z-index:1; width:100%; padding:0 2.4rem 3.5rem; }
+  .cut-label { font-family:var(--font-mono); letter-spacing:0.4em; font-size:0.62rem; color:var(--accent); text-transform:uppercase; margin-bottom:1rem; opacity:0; animation:fadeUp 0.7s ease 0.2s forwards; }
+  .hero-title { font-family:var(--font-display); font-size:clamp(3rem,11vw,9rem); line-height:0.9; text-transform:uppercase; color:var(--text); opacity:0; animation:fadeUp 0.7s ease 0.4s forwards; max-width:900px; }
+  .hero-credits { font-family:var(--font-mono); font-size:0.78rem; color:rgba(255,255,255,0.38); letter-spacing:0.2em; text-transform:uppercase; margin-top:1.1rem; opacity:0; animation:fadeUp 0.7s ease 0.6s forwards; }
+  .review-section { max-width:1020px; margin:0 auto; padding:6rem 2.4rem; display:grid; grid-template-columns:180px 1fr; gap:5rem; align-items:start; }
+  @media(max-width:700px){ .review-section { grid-template-columns:1fr; gap:2.5rem; padding:4rem 1.6rem; } }
+  .score-col { position:sticky; top:5rem; }
+  .score-number { font-family:var(--font-display); font-size:clamp(4rem,10vw,7.5rem); line-height:1; color:var(--text); }
   .score-number span { color:var(--accent); }
-  .score-label { font-family:var(--font-mono); letter-spacing:0.35em; font-size:0.68rem; text-transform:uppercase; color:var(--muted); margin-top:0.4rem; }
-  .score-verdict { font-family:var(--font-mono); font-style:italic; font-size:1.15rem; line-height:1.6; margin-bottom:1.5rem; color:var(--text); }
-  .score-defense { font-size:0.88rem; color:var(--muted); line-height:1.85; }
-
-  .section { max-width:920px; margin:0 auto; padding:6rem 2rem; }
-  .section-label { font-family:var(--font-mono); letter-spacing:0.4em; font-size:0.64rem; color:var(--accent); text-transform:uppercase; margin-bottom:1.4rem; }
-  .section-title { font-family:var(--font-display); font-size:clamp(1.8rem,4.5vw,3.2rem); line-height:1.1; text-transform:uppercase; margin-bottom:2.5rem; }
-  .section-title em { font-style:normal; color:var(--accent); }
-  .body-text p { margin-bottom:1.4rem; font-size:0.95rem; color:var(--text); }
-  .body-text p:last-child { margin-bottom:0; }
-
-  .craft-section { background:var(--bg2); border-top:1px solid var(--border); border-bottom:1px solid var(--border); }
-  .craft-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:1.5px; background:var(--border); border:1px solid var(--border); }
-  .craft-card { background:var(--bg2); padding:2.2rem 1.8rem; position:relative; overflow:hidden; transition:background 0.2s; }
-  .craft-card::before { content:''; position:absolute; top:0; left:0; width:3px; height:0; background:var(--accent); transition:height 0.3s; }
-  .craft-card:hover::before { height:100%; }
-  .craft-card:hover { background:var(--bg3); }
-  .craft-head { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:0.9rem; }
-  .craft-name { font-family:var(--font-mono); letter-spacing:0.25em; font-size:0.66rem; text-transform:uppercase; color:var(--text); }
-  .craft-score { font-family:var(--font-display); font-size:1.5rem; color:var(--accent); }
-  .craft-meter { height:3px; background:rgba(255,255,255,0.07); margin-bottom:1rem; }
-  .craft-meter span { display:block; height:100%; background:var(--accent); }
-  .craft-note { font-size:0.82rem; color:var(--muted); line-height:1.75; }
-
-  .quote-section { padding:7rem 2rem; text-align:center; position:relative; overflow:hidden; }
-  .quote-bg { position:absolute; inset:0; background:radial-gradient(ellipse 55% 55% at 50% 50%, var(--accent-glow) 0%, transparent 70%); opacity:0.5; }
-  .quote-text { font-family:var(--font-mono); font-style:italic; font-size:clamp(1.2rem,3vw,2rem); line-height:1.5; max-width:680px; margin:0 auto; position:relative; z-index:1; }
-  .quote-attr { font-family:var(--font-mono); letter-spacing:0.3em; font-size:0.62rem; text-transform:uppercase; color:var(--muted); margin-top:1.5rem; position:relative; z-index:1; }
-
-  .scene { border-left:3px solid var(--accent); background:var(--bg2); padding:2rem 2.2rem; margin-bottom:1.5rem; }
-  .scene-tc { font-family:var(--font-mono); font-size:0.64rem; letter-spacing:0.25em; color:var(--accent); text-transform:uppercase; margin-bottom:0.5rem; }
-  .scene-title { font-family:var(--font-display); font-size:1.3rem; text-transform:uppercase; margin-bottom:0.8rem; }
-  .scene-text { font-size:0.88rem; color:var(--muted); line-height:1.85; }
-
-  .rewatch-section { background:var(--bg2); border-top:1px solid var(--border); text-align:center; padding:6rem 2rem; }
-  .rewatch-stamp { display:inline-block; font-family:var(--font-display); font-size:clamp(1.6rem,4vw,2.8rem); text-transform:uppercase; color:var(--accent); border:3px solid var(--accent); padding:0.6rem 2.2rem; transform:rotate(-2deg); letter-spacing:0.04em; }
-  .rewatch-note { font-size:0.9rem; color:var(--muted); max-width:560px; margin:2rem auto 0; line-height:1.85; }
-
-  footer { padding:4rem 2rem; text-align:center; border-top:1px solid var(--border); }
-  .footer-back { font-family:var(--font-mono); letter-spacing:0.3em; font-size:0.66rem; text-transform:uppercase; color:var(--muted); text-decoration:none; transition:color 0.2s; }
+  .score-denom { font-family:var(--font-mono); font-size:0.62rem; letter-spacing:0.3em; text-transform:uppercase; color:var(--muted); margin-top:0.3rem; }
+  .score-verdict { font-family:var(--font-mono); font-style:italic; font-size:0.82rem; color:var(--accent); line-height:1.6; margin-top:1.2rem; padding-top:1.2rem; border-top:1px solid var(--border); }
+  @media(max-width:700px){ .score-col { position:static; display:flex; align-items:baseline; gap:1.2rem; flex-wrap:wrap; } .score-verdict { border-top:none; margin-top:0; padding-top:0; } }
+  .review-text p { font-size:0.97rem; color:var(--text); line-height:1.85; margin-bottom:1.5rem; }
+  .review-text p:last-child { margin-bottom:0; }
+  .divider { max-width:1020px; margin:0 auto; padding:0 2.4rem; }
+  .divider hr { border:none; border-top:1px solid var(--border); }
+  .quote-section { padding:6rem 2.4rem; text-align:center; }
+  .quote-text { font-family:var(--font-mono); font-style:italic; font-size:clamp(1.1rem,2.8vw,1.75rem); line-height:1.5; max-width:680px; margin:0 auto; color:var(--text); }
+  .quote-attr { font-family:var(--font-mono); letter-spacing:0.3em; font-size:0.6rem; text-transform:uppercase; color:var(--muted); margin-top:1.4rem; }
+  .rewatch-section { background:var(--bg2); border-top:1px solid var(--border); border-bottom:1px solid var(--border); padding:5rem 2.4rem; text-align:center; }
+  .rewatch-label { font-family:var(--font-mono); letter-spacing:0.4em; font-size:0.62rem; text-transform:uppercase; color:var(--muted); margin-bottom:1.8rem; }
+  .rewatch-stamp { display:inline-block; font-family:var(--font-display); font-size:clamp(1.5rem,3.5vw,2.6rem); text-transform:uppercase; color:var(--accent); border:2px solid var(--accent); padding:0.5rem 2rem; transform:rotate(-1.5deg); letter-spacing:0.04em; }
+  .rewatch-note { font-size:0.88rem; color:var(--muted); max-width:520px; margin:1.8rem auto 0; line-height:1.85; font-family:var(--font-mono); font-style:italic; }
+  footer { padding:3.5rem 2.4rem; text-align:center; }
+  .footer-back { font-family:var(--font-mono); letter-spacing:0.3em; font-size:0.62rem; text-transform:uppercase; color:var(--muted); text-decoration:none; transition:color 0.2s; }
   .footer-back:hover { color:var(--accent); }
-
-  @keyframes fadeUp { from{opacity:0;transform:translateY(28px)} to{opacity:1;transform:translateY(0)} }
-  .reveal { opacity:0; transform:translateY(38px); transition:opacity 0.7s ease, transform 0.7s ease; }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(22px)} to{opacity:1;transform:translateY(0)} }
+  .reveal { opacity:0; transform:translateY(30px); transition:opacity 0.65s ease, transform 0.65s ease; }
   .reveal.visible { opacity:1; transform:translateY(0); }
 </style>
 </head>
 <body>
 <div class="progress-bar" id="progress"></div>
-
 <nav>
   <a href="index.html" class="nav-back">← All Cuts</a>
   <div class="nav-score" id="navScore">9.3</div>
 </nav>
 
 <section class="hero">
-  <div class="hero-bg"></div>
+  <img src="img/pulp-fiction.jpg" alt="Pulp Fiction" class="hero-img" onerror="this.style.opacity=0">
+  <div class="hero-fallback"></div>
+  <div class="hero-overlay"></div>
   <div class="hero-content">
     <div class="cut-label">Final Cut No. 2</div>
     <h1 class="hero-title">Pulp Fiction</h1>
-    <div class="hero-director">dir. Quentin Tarantino</div>
-    <div class="hero-meta">1994 · Crime · 154 min</div>
-    <div class="hero-rule"></div>
-    <div class="scroll-hint">Roll film</div>
+    <div class="hero-credits">dir. Quentin Tarantino &nbsp;·&nbsp; 1994 &nbsp;·&nbsp; Crime &nbsp;·&nbsp; 154 min</div>
   </div>
 </section>
 
-<div class="verdict-bar">Three crime stories told out of order, shuffled so that a redemption gets the last word.</div>
-
-<section class="score-section">
-  <div class="score-inner">
-    <div class="score-display">
-      <div class="score-number">9<span>.3</span></div>
-      <div class="score-label">Out of ten</div>
-    </div>
-    <div>
-      <div class="score-verdict">Thirty years of imitators and not one of them figured out the trick: it's a hangout movie wearing a crime movie's jacket.</div>
-      <div class="score-defense">What keeps it from a 9.5 or higher: the pawn shop basement is shock doing the work that wit does everywhere else, and Tarantino casting himself to deliver his ugliest dialogue has aged like milk. What keeps it from dropping a point: the structure is still load-bearing, the dialogue still plays, and the diner ending still lands like a verdict. Films this imitated usually get worn smooth. This one didn't.</div>
-    </div>
+<section class="review-section">
+  <div class="score-col reveal">
+    <div class="score-number">9<span>.3</span></div>
+    <div class="score-denom">Out of ten</div>
+    <div class="score-verdict">A hangout movie wearing a crime movie's jacket, shuffled so that a redemption gets the last word.</div>
+  </div>
+  <div class="review-text reveal">
+    <p>Thirty years of imitators and not one of them figured out the trick. It's not the structure, which everyone copied. It's the temperature: Tarantino lets scenes run eight minutes on pure conversation, and the conversation is so alive you don't notice you're being set up. Hitmen discuss foot massages with the seriousness of theologians, and then the theology shows up for real. Every digression turns out to be the plot. People have got lines from this tattooed on themselves, which is its own review.</p>
+    <p>Samuel L. Jackson gives one of the great American performances: a sermon machine who slowly realizes, mid-speech, that he means it. Travolta plays Vincent half-asleep on purpose and made it a career resurrection. Uma Thurman built an icon out of a bob and a cigarette. The film has no original score, just crates of surf rock and soul dropped with sniper precision. Misirlou as an opening gun. "Girl, You'll Be a Woman Soon" scoring an overdose. It rewired how movies use pop music, for better and in lesser hands much worse.</p>
+    <p>It's not the best film of the 90s, but it rearranged the furniture. The 9.3 rather than higher: the pawn shop basement trades the film's wit for pure transgression, and Tarantino casting himself to deliver his ugliest dialogue has aged badly. The film survives it. Where it soars is every minute Jackson is on screen, the diner standoff above everything, a man reciting scripture for the second time but now actually thinking about the words, talking two robbers out of dying and himself into a new life in the same breath. The chronology means the rewatch is a different film: you know Vincent's future during every scene he's alive, and the ending gets heavier each time.</p>
   </div>
 </section>
 
-<section class="craft-section">
-  <div class="section">
-    <div class="section-label reveal">The Bench</div>
-    <h2 class="section-title reveal">Craft <em>scorecard</em></h2>
-    <div class="craft-grid reveal">
-      <div class="craft-card">
-        <div class="craft-head"><span class="craft-name">Direction</span><span class="craft-score">9.2</span></div>
-        <div class="craft-meter"><span style="width:92%"></span></div>
-        <div class="craft-note">The confidence is the style. Tarantino lets scenes run eight minutes on talk alone, holds the trunk shot because it's his signature, and times every needle drop like a punchline. Almost nothing here is visually radical; what's radical is the nerve.</div>
-      </div>
-      <div class="craft-card">
-        <div class="craft-head"><span class="craft-name">Cinematography</span><span class="craft-score">8.8</span></div>
-        <div class="craft-meter"><span style="width:88%"></span></div>
-        <div class="craft-note">Andrzej Sekula shoots on slow 50 ASA stock, which is why everything looks weirdly rich and saturated for a movie set in diners and apartments. The long Steadicam follow into Jack Rabbit Slim's is the flex. Serviceable everywhere else, deliberately so. The words are the visuals.</div>
-      </div>
-      <div class="craft-card">
-        <div class="craft-head"><span class="craft-name">Acting</span><span class="craft-score">9.6</span></div>
-        <div class="craft-meter"><span style="width:96%"></span></div>
-        <div class="craft-note">Samuel L. Jackson gives one of the great American performances, a sermon machine slowly realizing he means it. Travolta plays Vincent half-asleep on purpose and made it a career resurrection. Willis underplays, Keitel cameos like royalty, and Uma Thurman built an icon out of a bob and a cigarette.</div>
-      </div>
-      <div class="craft-card">
-        <div class="craft-head"><span class="craft-name">Writing</span><span class="craft-score">9.8</span></div>
-        <div class="craft-meter"><span style="width:98%"></span></div>
-        <div class="craft-note">The screenplay is the monument. Hitmen discuss foot massages with the seriousness of theologians, then the theology shows up for real. Every digression turns out to be the plot. People have it tattooed on themselves, which is its own review.</div>
-      </div>
-      <div class="craft-card">
-        <div class="craft-head"><span class="craft-name">Score &amp; Sound</span><span class="craft-score">9.5</span></div>
-        <div class="craft-meter"><span style="width:95%"></span></div>
-        <div class="craft-note">No composer, no original score, just crates of surf rock and soul deployed with sniper precision. Misirlou as an opening gun. "Girl, You'll Be a Woman Soon" scoring an overdose. It rewired how movies use pop music, for better and (in lesser hands) much worse.</div>
-      </div>
-      <div class="craft-card">
-        <div class="craft-head"><span class="craft-name">Editing</span><span class="craft-score">9.4</span></div>
-        <div class="craft-meter"><span style="width:94%"></span></div>
-        <div class="craft-note">Sally Menke is the silent co-author. The chronology shuffle only works because every segment ends one beat after its strongest moment. A film this talky has no business moving this fast.</div>
-      </div>
-    </div>
-  </div>
-</section>
+<div class="divider reveal"><hr></div>
 
-<section class="section">
-  <div class="section-label reveal">Themes</div>
-  <h2 class="section-title reveal">What it's <em>actually</em> about</h2>
-  <div class="body-text reveal">
-    <p>Underneath the cool, it's a movie about whether grace exists. Jules and Vincent walk out of the same apartment, through the same miracle, and read it two different ways. Vincent calls it luck and goes back to work; Jules calls it God and quits. The film doesn't argue. It just arranges the timeline so you watch Vincent die in the middle and walk out grinning at the end, and lets you sit with what that means. The last scene of the movie is, chronologically, a man choosing to be better. That's the whole design.</p>
-    <p>It's also about talk as survival. Almost every scene is a negotiation: Jules talking Ringo down, the Wolf talking a corpse out of a garage, Butch talking Marsellus into mercy terms. In this world the fast gun matters less than the fast mouth, and the people who die are mostly the ones who run out of things to say.</p>
-  </div>
-</section>
-
-<section class="quote-section">
-  <div class="quote-bg"></div>
+<section class="quote-section reveal">
   <div class="quote-text">"The truth is, you're the weak, and I'm the tyranny of evil men. But I'm tryin', Ringo. I'm tryin' real hard to be the shepherd."</div>
   <div class="quote-attr">Jules Winnfield — Pulp Fiction</div>
 </section>
 
-<section class="section">
-  <div class="section-label reveal">Standout Scenes</div>
-  <h2 class="section-title reveal">The frames that <em>stay</em></h2>
-  <div class="reveal">
-    <div class="scene">
-      <div class="scene-tc">TC 00:14:00</div>
-      <div class="scene-title">Royale With Cheese → Ezekiel</div>
-      <div class="scene-text">Five minutes about European fast food, an elevator chat about foot massages, and then a door opens and the small talk becomes an execution with Bible verses. The scene taught a generation that menace is funnier and scarier when it arrives mid-conversation. Everything Tarantino is, good and bad, is in this one sequence.</div>
-    </div>
-    <div class="scene">
-      <div class="scene-tc">TC 00:52:00</div>
-      <div class="scene-title">The Twist Contest</div>
-      <div class="scene-text">Two people who absolutely should not be alone together, dancing barefoot in a restaurant shaped like the 1950s. No plot advances. It's pure chemistry management, the tension of a date that isn't a date, and it became one of the most referenced scenes ever filmed without containing a single line anyone quotes.</div>
-    </div>
-    <div class="scene">
-      <div class="scene-tc">TC 01:08:00</div>
-      <div class="scene-title">The Adrenaline Shot</div>
-      <div class="scene-text">Comedy and horror in a dead heat: a panicking Vincent, a drug dealer reading instructions off a medical book, a magic marker dot, and the hardest needle-related smash cut in cinema. Thurman sitting bolt upright is a jump scare played for a laugh, and somehow both work at full strength.</div>
-    </div>
-    <div class="scene">
-      <div class="scene-tc">TC 01:28:00</div>
-      <div class="scene-title">The Gold Watch Monologue</div>
-      <div class="scene-text">Christopher Walken, one scene, talking to a child about a wristwatch and where it spent the war. It starts as solemn military legacy and ends somewhere unspeakable, delivered completely straight. It's the film in miniature: sentiment and filth welded together so tightly you laugh and feel something at the same time.</div>
-    </div>
-    <div class="scene">
-      <div class="scene-tc">TC 02:20:00</div>
-      <div class="scene-title">The Diner Standoff</div>
-      <div class="scene-text">The opening scene resumes from the other side of the room, and the movie reveals it was a sermon the whole time. Jackson reciting Ezekiel for the second time, but slowly, actually thinking about the words, is the best acting of 1994. He talks two robbers out of dying and himself into a new life in the same breath.</div>
-    </div>
-  </div>
-</section>
-
-<section class="section" style="padding-top:0;">
-  <div class="section-label reveal">Writing &amp; Dialogue</div>
-  <h2 class="section-title reveal">On the <em>page</em></h2>
-  <div class="body-text reveal">
-    <p>The structural gag is famous, but the page-level trick is subtler: nobody in this movie talks about what the scene is about. The Ringo negotiation is about a wallet; it's actually about whether Jules meant his epiphany. The foot massage debate is about Tony Rocky Horror; it's actually Vincent being warned and not listening. Tarantino writes around the subject and lets the dread or the comedy leak in from the edges.</p>
-    <p>The flaws are also on the page. The Bonnie Situation leans on a slur Tarantino wrote for his own mouth, and it's the one stretch where the dialogue serves the writer's self-image instead of the story. The film survives it. It shouldn't have to.</p>
-  </div>
-</section>
-
-<section class="section" style="padding-top:0;">
-  <div class="section-label reveal">The Honest Take</div>
-  <h2 class="section-title reveal">No <em>notes</em> withheld</h2>
-  <div class="body-text reveal">
-    <p>It's not the best film of the 90s, but it might be the most 90s film of the 90s, and it's the one that rearranged the furniture. Every crime movie with chatty hitmen, every nonlinear indie, every soundtrack album that outsold the movie: this is the patient zero. Influence isn't quality, but in this case the quality is also just there, on screen, scene after scene.</p>
-    <p>Where it dips: the pawn shop sequence trades the film's wit for pure transgression, and the Butch chapter takes its time finding a pulse before Walken hands it one. Where it soars: every minute Jackson is on screen. If Parasite is a film where every department points the same direction, this is a film where one department (the screenplay) points and everything else salutes.</p>
-  </div>
-</section>
-
 <section class="rewatch-section">
-  <div class="section-label reveal">Rewatch Verdict</div>
-  <div class="reveal" style="margin-top:1.5rem;">
-    <span class="rewatch-stamp">Rewatch It</span>
-  </div>
-  <div class="rewatch-note reveal">It's comfort food that happens to be a landmark. The chronology means the rewatch is a different film: you know Vincent's future during every scene he's alive, and the diner ending gets heavier each time.</div>
+  <div class="rewatch-label reveal">Rewatch verdict</div>
+  <div class="reveal"><span class="rewatch-stamp">Rewatch It</span></div>
+  <div class="rewatch-note reveal">Comfort food that happens to be a landmark. The chronology means you know Vincent's future in every scene he's alive, and the diner ending gets heavier each time.</div>
 </section>
 
 <footer>
@@ -257,29 +113,12 @@
     const el = document.documentElement;
     const total = el.scrollHeight - el.clientHeight;
     document.getElementById('progress').style.width = (total > 0 ? el.scrollTop / total * 100 : 0) + '%';
-    document.getElementById('navScore').classList.toggle('visible', el.scrollTop > window.innerHeight * 0.8);
+    document.getElementById('navScore').classList.toggle('visible', el.scrollTop > window.innerHeight * 0.6);
   }, { passive:true });
-
   const io = new IntersectionObserver(entries => {
     entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
-  }, { threshold:0.12 });
+  }, { threshold:0.1 });
   document.querySelectorAll('.reveal').forEach(el => io.observe(el));
-
-  const meters = new IntersectionObserver(entries => {
-    entries.forEach(e => {
-      if (e.isIntersecting) {
-        const span = e.target.querySelector('span');
-        span.style.transition = 'width 0.9s ease';
-        requestAnimationFrame(() => { span.style.width = span.dataset.w; });
-      }
-    });
-  }, { threshold:0.5 });
-  document.querySelectorAll('.craft-meter').forEach(m => {
-    const span = m.querySelector('span');
-    span.dataset.w = span.style.width;
-    span.style.width = '0%';
-    meters.observe(m);
-  });
 </script>
 </body>
 </html>
